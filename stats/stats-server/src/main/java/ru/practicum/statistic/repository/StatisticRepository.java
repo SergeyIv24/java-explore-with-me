@@ -5,5 +5,4 @@ import ru.practicum.statistic.model.Statistic;
 
 public interface StatisticRepository extends JpaRepository<Statistic, Long> {
 
-
 }

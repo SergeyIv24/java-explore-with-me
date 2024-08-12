@@ -10,10 +10,17 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stats-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <name>Stats</name>
 
-    <name>Stats server</name>
+    <artifactId>stats</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>stats-client</module>
+        <module>stats-server</module>
+        <module>stats-dto</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -22,6 +29,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

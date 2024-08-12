@@ -1,5 +1,6 @@
-package ru.practicum.statistic.dto;
+package dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -11,15 +12,16 @@ import java.time.LocalDateTime;
 @Builder
 public class StatisticDto {
 
-    @NotBlank
+    @NotBlank(message = "empty application name")
     private String app;
 
-    @NotBlank
+    @NotBlank(message = "empty uri")
     private String uri;
 
-    @NotBlank
+    @NotBlank(message = "empty ip")
     private String ip;
 
-    @NotNull
+    @NotNull(message = "empty timestamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 }

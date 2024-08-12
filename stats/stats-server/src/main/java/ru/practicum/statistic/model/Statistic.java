@@ -1,5 +1,6 @@
 package ru.practicum.statistic.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ public class Statistic {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "app_id")
+    @JoinColumn(name = "app")
     private App app;
 
     @NotBlank
@@ -29,6 +30,7 @@ public class Statistic {
     private String ip;
 
     @NotNull
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
 

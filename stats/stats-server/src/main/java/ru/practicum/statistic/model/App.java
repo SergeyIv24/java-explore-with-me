@@ -2,6 +2,7 @@
 package ru.practicum.statistic.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Entity
@@ -15,6 +16,7 @@ public class App {
     private Long id;
 
     @Column(name = "app_name")
+    @NotBlank
     private String name;
 }
 
