@@ -1,2 +1,3 @@
-INSERT INTO apps (app_name)
-VALUES ("");
+INSERT INTO apps
+VALUES (1, 'ewm-main-service')
+ON CONFLICT DO NOTHING;

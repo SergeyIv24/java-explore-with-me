@@ -1,6 +1,5 @@
-package ru.practicum.statistic.model;
+package ru.practicum.statistic.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -8,19 +7,12 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "statistics")
 @Data
 @Builder
-public class Statistic {
+public class StatisticDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "app_id")
-    private App app;
+    @NotBlank
+    private String app;
 
     @NotBlank
     private String uri;
@@ -30,6 +22,4 @@ public class Statistic {
 
     @NotNull
     private LocalDateTime timestamp;
-
-
 }
