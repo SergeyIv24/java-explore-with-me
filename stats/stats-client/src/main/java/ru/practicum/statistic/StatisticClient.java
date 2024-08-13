@@ -1,6 +1,6 @@
 package ru.practicum.statistic;
 
-import dto.StatisticDto;
+import ru.practicum.dto.StatisticDto;
 import jakarta.annotation.Nullable;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;

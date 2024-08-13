@@ -1,8 +1,8 @@
 package ru.practicum.statistic.service;
 
 
-import dto.StatisticDto;
-import dto.StatisticResponse;
+import ru.practicum.dto.StatisticDto;
+import ru.practicum.dto.StatisticResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;

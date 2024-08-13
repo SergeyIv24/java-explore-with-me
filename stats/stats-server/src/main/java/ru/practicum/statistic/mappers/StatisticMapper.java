@@ -1,6 +1,6 @@
 package ru.practicum.statistic.mappers;
 
-import dto.StatisticDto;
+import ru.practicum.dto.StatisticDto;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

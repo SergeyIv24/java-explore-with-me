@@ -1,12 +1,9 @@
 package ru.practicum.statistic.controller;
 
 
-import dto.StatisticDto;
-import dto.StatisticResponse;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
+import ru.practicum.dto.StatisticDto;
+import ru.practicum.dto.StatisticResponse;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.practicum.statistic.service.StatisticService;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 

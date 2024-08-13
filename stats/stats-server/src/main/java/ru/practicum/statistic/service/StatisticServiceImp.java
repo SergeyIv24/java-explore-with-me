@@ -1,7 +1,7 @@
 package ru.practicum.statistic.service;
 
-import dto.StatisticDto;
-import dto.StatisticResponse;
+import ru.practicum.dto.StatisticDto;
+import ru.practicum.dto.StatisticResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

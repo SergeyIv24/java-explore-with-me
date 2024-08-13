@@ -1,6 +1,6 @@
 package ru.practicum.statistic.repository;
 
-import dto.StatisticResponse;
+import ru.practicum.dto.StatisticResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.statistic.model.Statistic;

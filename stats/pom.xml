@@ -17,9 +17,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>stats-dto</module>
         <module>stats-client</module>
         <module>stats-server</module>
-        <module>stats-dto</module>
     </modules>
 
     <properties>
@@ -29,7 +29,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
