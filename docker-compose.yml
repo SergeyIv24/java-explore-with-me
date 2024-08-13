@@ -1,6 +1,6 @@
 version: "3.1"
 services:
-  stats:
+  stats-server:
     build: stats
     image: stats
     container_name: statsApp
