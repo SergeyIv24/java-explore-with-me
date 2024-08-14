@@ -23,6 +23,7 @@ import java.util.List;
 public class StatisticController {
     private final StatisticService statisticService;
 
+
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public StatisticDto addInStats(@Valid @RequestBody StatisticDto statisticDto) {
