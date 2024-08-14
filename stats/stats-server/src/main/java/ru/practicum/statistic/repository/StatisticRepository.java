@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface StatisticRepository extends JpaRepository<Statistic, Long> {
 
-    @Query("SELECT new dto.StatisticResponse(st.app, st.uri, COUNT(st.ip)) " +
+    @Query("SELECT new ru.practicum.dto.StatisticResponse(st.app, st.uri, COUNT(st.ip)) " +
             "FROM Statistic AS st " +
             "WHERE st.uri IN ?1 " +
             "AND st.timestamp BETWEEN ?2 AND ?3 " +
@@ -18,7 +18,7 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
             "ORDER BY COUNT(st.ip) DESC ")
     List<StatisticResponse> findByUriInAndStartBetween(Iterable<String> uri, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new dto.StatisticResponse(st.app, st.uri, COUNT(DISTINCT st.ip)) " +
+    @Query("SELECT new ru.practicum.dto.StatisticResponse(st.app, st.uri, COUNT(DISTINCT st.ip)) " +
             "FROM Statistic AS st " +
             "WHERE st.uri IN ?1 " +
             "AND st.timestamp BETWEEN ?2 AND ?3 " +
@@ -27,14 +27,14 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
     List<StatisticResponse> findByUriInAndStartBetweenUniqueIp(Iterable<String> uri, LocalDateTime start,
                                                                LocalDateTime end);
 
-    @Query("SELECT new dto.StatisticResponse(st.app, st.uri, COUNT(DISTINCT st.ip)) " +
+    @Query("SELECT new ru.practicum.dto.StatisticResponse(st.app, st.uri, COUNT(DISTINCT st.ip)) " +
             "FROM Statistic AS st " +
             "WHERE st.timestamp BETWEEN ?1 AND ?2 " +
             "GROUP BY st.app, st.uri " +
             "ORDER BY COUNT(st.ip) DESC ")
     List<StatisticResponse> findStartBetween(LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new dto.StatisticResponse(st.app, st.uri, COUNT(st.ip)) " +
+    @Query("SELECT new ru.practicum.dto.StatisticResponse(st.app, st.uri, COUNT(st.ip)) " +
             "FROM Statistic AS st " +
             "WHERE st.timestamp BETWEEN ?1 AND ?2 " +
             "GROUP BY st.app, st.uri " +

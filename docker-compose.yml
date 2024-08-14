@@ -1,19 +1,18 @@
 version: "3.1"
 services:
   stats-server:
-    build: stats
-    image: stats
+    build: stats/stats-server
+    image: stats/stats-server
     container_name: statsApp
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
     environment:
-      - POSTGRES_DB=statsDb
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=12345
-      - POSTGRES_DB_HOST=stats-db
-      - POSTGRES_DB_PORT=5432
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsDb
+      - SPRING_DATASOURCE_USERNAME=dbuser
+      - SPRING_DATASOURCE_PASSWORD=12345
+
 
   stats-db:
     image: postgres:16.1
@@ -31,5 +30,6 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+
 
 
