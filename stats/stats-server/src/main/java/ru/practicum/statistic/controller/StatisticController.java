@@ -1,6 +1,6 @@
 package ru.practicum.statistic.controller;
 
-import ru.practicum.GeneralConstance;
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
 import ru.practicum.dto.StatisticResponse;
 import jakarta.validation.Valid;
@@ -50,7 +50,7 @@ public class StatisticController {
     }
 
     private LocalDateTime convertToLocalDataTime(String dataTime) {
-        return LocalDateTime.parse(dataTime, GeneralConstance.DATE_FORMATTER);
+        return LocalDateTime.parse(dataTime, GeneralConstants.DATE_FORMATTER);
     }
 
 

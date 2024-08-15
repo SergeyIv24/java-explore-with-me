@@ -1,6 +1,6 @@
 package ru.practicum.statistic;
 
-import ru.practicum.GeneralConstance;
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
 import jakarta.annotation.Nullable;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -39,13 +39,11 @@ public class StatisticClient extends BaseClient {
             parameters.put("uris", uris);
         }
 
-        String apiStat = "/stat";
-        return get(apiStat + "?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return get("/stat" + "?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 
     public ResponseEntity<Object> addStat(StatisticDto statisticDto) {
-        String apiHits = "/hit";
-        return post(apiHits, statisticDto, null);
+        return post("/hit", statisticDto, null);
     }
 
     private String encodeParameters(String parameter) {
@@ -53,6 +51,6 @@ public class StatisticClient extends BaseClient {
     }
 
     private String convertLocalDataTimeToString(LocalDateTime localDateTime) {
-        return localDateTime.format(GeneralConstance.DATE_FORMATTER);
+        return localDateTime.format(GeneralConstants.DATE_FORMATTER);
     }
 }

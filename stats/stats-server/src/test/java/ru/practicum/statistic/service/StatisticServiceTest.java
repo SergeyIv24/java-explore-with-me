@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.GeneralConstance;
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
 import ru.practicum.dto.StatisticResponse;
 
@@ -35,8 +35,8 @@ public class StatisticServiceTest {
     private static StatisticDto statEvent6Ip2;
     private static StatisticDto statEventIp2;
     private static App mainApp;
-    private static LocalDateTime start = LocalDateTime.parse("2000-01-01 11:11:11", GeneralConstance.DATE_FORMATTER);
-    private static LocalDateTime end = LocalDateTime.parse("3000-01-01 11:11:11", GeneralConstance.DATE_FORMATTER);
+    private static LocalDateTime start = LocalDateTime.parse("2000-01-01 11:11:11", GeneralConstants.DATE_FORMATTER);
+    private static LocalDateTime end = LocalDateTime.parse("3000-01-01 11:11:11", GeneralConstants.DATE_FORMATTER);
 
     @BeforeAll
     static void setup() {
@@ -49,7 +49,7 @@ public class StatisticServiceTest {
                 .uri("event/1")
                 .ip("1")
                 .app(mainApp.getName())
-                .timestamp((LocalDateTime.parse("2023-10-06 22:00:23", GeneralConstance.DATE_FORMATTER)))
+                .timestamp((LocalDateTime.parse("2023-10-06 22:00:23", GeneralConstants.DATE_FORMATTER)))
                 .build();
 
         statEvent2Ip1 = StatisticDto
@@ -57,7 +57,7 @@ public class StatisticServiceTest {
                 .uri("event/2")
                 .ip("1")
                 .app(mainApp.getName())
-                .timestamp((LocalDateTime.parse("2023-11-06 20:00:23", GeneralConstance.DATE_FORMATTER)))
+                .timestamp((LocalDateTime.parse("2023-11-06 20:00:23", GeneralConstants.DATE_FORMATTER)))
                 .build();
 
         statEvent6Ip2 = StatisticDto
@@ -65,7 +65,7 @@ public class StatisticServiceTest {
                 .uri("event/1")
                 .ip("2")
                 .app(mainApp.getName())
-                .timestamp((LocalDateTime.parse("2022-11-06 22:00:23", GeneralConstance.DATE_FORMATTER)))
+                .timestamp((LocalDateTime.parse("2022-11-06 22:00:23", GeneralConstants.DATE_FORMATTER)))
                 .build();
 
         statEventIp2 = StatisticDto
@@ -73,7 +73,7 @@ public class StatisticServiceTest {
                 .uri("event/")
                 .ip("2")
                 .app(mainApp.getName())
-                .timestamp((LocalDateTime.parse("2021-10-06 22:00:23", GeneralConstance.DATE_FORMATTER)))
+                .timestamp((LocalDateTime.parse("2021-10-06 22:00:23", GeneralConstants.DATE_FORMATTER)))
                 .build();
     }
 

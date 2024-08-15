@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.GeneralConstance;
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.statistic.model.App;
@@ -54,7 +54,7 @@ public class StatisticControllerTest {
                 .app(mainApp.getName())
                 .uri("/events/1")
                 .ip("192.163.0.1")
-                .timestamp(LocalDateTime.parse("2023-10-06 22:00:23", GeneralConstance.DATE_FORMATTER))
+                .timestamp(LocalDateTime.parse("2023-10-06 22:00:23", GeneralConstants.DATE_FORMATTER))
                 .build();
 
         statsForEvent1 = new StatisticResponse(mainApp, "/events/1", 2L);
