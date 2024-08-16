@@ -13,14 +13,13 @@ services:
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
 
-
   stats-db:
     image: postgres:16.1
     container_name: statsDb
     ports:
       - "5432:5432"
     volumes:
-      - ./volumes/postgres:/var/lib/postgresql/data/
+      - ./volumes/statDb:/var/lib/postgresql/data/
     environment:
       - POSTGRES_DB=statsDb
       - POSTGRES_USER=dbuser
@@ -31,5 +30,38 @@ services:
       interval: 5s
       retries: 10
 
+
+  main-server:
+    build: main-service
+    image: main-service
+    container_name: mainService
+    ports:
+      - "8080:8080"
+    depends_on:
+      - main-db
+
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/mainDb
+      - SPRING_DATASOURCE_USERNAME=dbuser
+      - SPRING_DATASOURCE_PASSWORD=12345
+
+  main-db:
+    image: postgres:16.1
+    container_name: mainDb
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./volumes/mainDb:/var/lib/postgresql/data/
+
+    environment:
+      - POSTGRES_DB=mainDb
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
 
 
