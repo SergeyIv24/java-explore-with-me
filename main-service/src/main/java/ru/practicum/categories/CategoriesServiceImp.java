@@ -43,7 +43,8 @@ public class CategoriesServiceImp implements CategoriesService {
     @Override
     public Collection<CategoryDto> getAllCategories(int from, int size) {
         Sort sortById = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(from, size, sortById);
+        int startPage = from > 0 ? (from/size) : 0;
+        Pageable pageable = PageRequest.of(startPage, size, sortById);
         return categoriesRepository.findAll(pageable)
                 .stream()
                 .map(CategoriesMapper::mapToCategoryDto)

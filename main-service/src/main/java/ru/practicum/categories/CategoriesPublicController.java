@@ -1,5 +1,6 @@
 package ru.practicum.categories;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,9 +20,9 @@ public class CategoriesPublicController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<CategoryDto> getAllCategories(@RequestParam(required = false, value = "from", defaultValue = "0")
-                                                    int from,
+                                                    @Min(0) int from,
                                                     @RequestParam(required = false, value = "size", defaultValue = "10")
-                                                    int size) {
+                                                    @Min(0) int size) {
         log.info("CategoriesPublicController, getAllCategories. From: {}, size: {}", from, size);
         return categoriesService.getAllCategories(from, size);
     }

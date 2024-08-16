@@ -34,7 +34,8 @@ public class UserServiceImp implements UserService {
     public Collection<UserDto> getUsers(Collection<Integer> ids, int from, int size) {
         validateFromAndSize(from, size);
         Sort sortDyId = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(from, size, sortDyId);
+        int startPage = from > 0 ? (from / size) : 0;
+        Pageable pageable = PageRequest.of(startPage, size, sortDyId);
 
         if (ids == null) {
             return getUsersWithoutIds(pageable);
