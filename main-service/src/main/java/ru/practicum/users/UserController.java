@@ -9,6 +9,7 @@ import ru.practicum.users.dto.UserDto;
 
 
 import java.util.Collection;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,9 +28,9 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<UserDto> getUsers(@RequestParam("ids") Collection<Integer> ids,
-                                        @RequestParam("from") int from,
-                                        @RequestParam("size") int size) {
+    public Collection<UserDto> getUsers(@RequestParam(value = "ids", required = false) Set<Integer> ids,
+                                        @RequestParam(value = "from", required = false, defaultValue = "0") int from,
+                                        @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         log.info("UserController, getUser, ids: {}, from: {}, size: {}", ids, from, size);
         return userService.getUsers(ids, from, size);
     }
