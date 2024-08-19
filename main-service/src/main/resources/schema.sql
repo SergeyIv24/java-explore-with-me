@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS events (
 	initiator BIGINT REFERENCES users (id) ON DELETE CASCADE,
 	location BIGINT REFERENCES locations (id) ON DELETE CASCADE,
 	paid BOOLEAN NOT NULL,
-	participants_limit BIGINT NOT NULL,
+	participants_limit BIGINT,
 	published_on timestamp,
 	request_moderation BOOLEAN NOT NULL,
-	state INTEGER REFERENCES states (id) ON DELETE CASCADE,
+	state varchar, --INTEGER REFERENCES states (id) ON DELETE CASCADE,
 	title varchar NOT NULL
 );
 

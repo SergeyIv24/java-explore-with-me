@@ -26,7 +26,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorMessage handleConflict(ConstraintViolationException e) {
         String reason = "Integrity constraint has been violated";
-        String message = "could not execute statement; constraint" + e.getConstraintName();
+        String message = "could not execute statement; constraint " + e.getConstraintName();
         return new ErrorMessage(HttpStatus.CONFLICT.getReasonPhrase(), reason, message, prepareResponseDate());
 
     }
