@@ -40,7 +40,7 @@ public class EventServiceImp implements EventService {
         addingEvent.setInitiator(validateUser(userId));
         addingEvent.setCategory(validateCategory(eventRequest.getCategory()));
         addingEvent.setCreatedOn(LocalDateTime.now());
-        addingEvent.setState(String.valueOf(States.WAITING));
+        addingEvent.setState(String.valueOf(EventStates.WAITING));
         return EventMapper.mapToEventRequest(eventRepository.save(addingEvent));
     }
 
@@ -136,10 +136,10 @@ public class EventServiceImp implements EventService {
     }
 
     private void checkAbilityToUpdate(EventRequest eventRequest) {
-        if (!(eventRequest.getState().equals(String.valueOf(States.WAITING)))
-                && !(eventRequest.getState().equals(String.valueOf(States.CANCELED)))) {
+        if (!(eventRequest.getState().equals(String.valueOf(EventStates.WAITING)))
+                && !(eventRequest.getState().equals(String.valueOf(EventStates.CANCELED)))) {
             log.warn("Update is prohibited. eventRequest stat: {}", eventRequest.getState());
-            throw new ConflictException("States must be" + States.WAITING + " or " + States.CANCELED);
+            throw new ConflictException("States must be" + EventStates.WAITING + " or " + EventStates.CANCELED);
         }
     }
 }

@@ -47,5 +47,5 @@ CREATE TABLE IF NOT EXISTS requests (
 	created TIMESTAMP NOT NULL,
 	event BIGINT REFERENCES events (id),
 	requester BIGINT REFERENCES users (id),
-	status INTEGER REFERENCES status (id)
+	status varchar --INTEGER REFERENCES status (id)
 );
