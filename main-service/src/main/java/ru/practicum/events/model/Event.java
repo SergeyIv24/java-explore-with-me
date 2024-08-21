@@ -48,7 +48,6 @@ public class Event {
     @JoinColumn(name = "initiator")
     private User initiator;
 
-    //is not using @ElementCollection because Location is not simple type
     @ManyToOne
     @JoinColumn(name = "location")
     private Location location;
@@ -57,7 +56,7 @@ public class Event {
     private Boolean paid;
 
     @Column(name = "participants_limit")
-    private Long participantLimit;
+    private Integer participantLimit;
 
     @Column(name = "published_on")
     @FutureOrPresent(message = "publishedOn must not be in past")
@@ -66,10 +65,6 @@ public class Event {
     @Column(name = "request_moderation")
     //todo valid not null???
     private Boolean requestModeration;
-
-/*    @ManyToOne
-    @JoinColumn(name = "state")
-    private State state;*/
 
     private String state;
 

@@ -37,7 +37,7 @@ public class EventRequest {
     @NotNull(message = "paid must be true or false")
     private Boolean paid;
 
-    private Long participantLimit;
+    private Integer participantLimit;
 
     private Boolean requestModeration;
 

@@ -1,6 +1,7 @@
 package ru.practicum.events.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -13,17 +14,20 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class EventFull {
+public class EventRespFull {
 
     private Long id;
 
     @NotBlank(message = "empty annotation")
     private String annotation;
 
+    @NotNull(message = "Category must be existed")
     private Category category;
 
-    //private Long confirmedRequests;
+    @Min(0)
+    private Long confirmedRequests;
 
+    @NotNull(message = "Empty createdOn")
     private LocalDateTime createdOn;
 
     @NotBlank(message = "empty description")
@@ -42,9 +46,9 @@ public class EventFull {
     @NotNull(message = "paid must be true or false")
     private Boolean paid;
 
-    private Long participantLimit;
+    private Integer participantLimit;
 
-    @NotNull
+    @NotNull(message = "empty publishedOn")
     private LocalDateTime publishedOn;
 
     private Boolean requestModeration;

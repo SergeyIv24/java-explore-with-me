@@ -14,9 +14,7 @@ import ru.practicum.users.UserRepository;
 import ru.practicum.users.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,15 +28,16 @@ public class RequestServiceImp implements RequestService {
 
     @Override
     public RequestDto addRequest(long eventId, long userId) {
+        Event event = validateEvent(eventId); //Check event
+        User user = validateUser(userId);
+        checkAbilityToAddRequest(event, userId, eventId);
         Requests addingRequest = Requests
                 .builder()
                 .created(LocalDateTime.now())
                 .build();
-        Event event = validateEvent(eventId); //Check event
-        addingRequest.setRequester(validateUser(userId)); //Check and set user
-        checkAbilityToAddRequest(event, addingRequest, userId);
-
         addingRequest.setEvent(event);
+        addingRequest.setRequester(user); //Check and set user
+
         if (!event.getRequestModeration()) {
             addingRequest.setStatus(String.valueOf(RequestStatus.ACCEPTED));
         }
@@ -64,8 +63,9 @@ public class RequestServiceImp implements RequestService {
                 .collect(Collectors.toSet());
     }
 
-    private void checkAbilityToAddRequest(Event event, Requests request, Long requesterId) {
-        isThereDuplicate(requesterId, request);
+    private void checkAbilityToAddRequest(Event event, long requesterId, long eventId) {
+        List<Requests> requests = requestRepository.findByRequesterId(requesterId);
+        isThereDuplicate(requests, requesterId, eventId);
         validateEventStatesAndRequesterId(event, requesterId);
         checkParticipantsLimit(event);
     }
@@ -84,21 +84,13 @@ public class RequestServiceImp implements RequestService {
     }
 
     private void checkParticipantsLimit(Event event) {
-        long requestAmountForEvent = requestRepository.countByEventId(event.getId());
+        long requestAmountForEvent = requestRepository.countByEventIdAndStatus(event.getId(),
+                String.valueOf(RequestStatus.ACCEPTED));
 
         if (event.getParticipantLimit() < (requestAmountForEvent + 1)) {
             log.warn("Unable to add request. ParticipantLimit {} less then request amount {}",
                     event.getParticipantLimit(), (requestAmountForEvent + 1));
             throw new ConflictException("Exceeded requesters amount");
-        }
-    }
-
-    private void isThereDuplicate(Long requesterId, Requests target) {
-        Set<Requests> requests = requestRepository.findByRequesterId(requesterId);
-
-        if (requests.contains(target)) {
-            log.warn("Request is duplicate");
-            throw new ConflictException("Request is duplicate");
         }
     }
 
@@ -131,16 +123,9 @@ public class RequestServiceImp implements RequestService {
         }
         return user.get();
     }
-}
 
-/*    private static List sortBy() {
-        return null;
-    }
-
-    private static <T extends Requests> boolean binarySearch(List<T> collection, T target) {
-        collection.sort(Comparator.comparing((Requests req) -> req.getRequester().getId()));
-
-        collection.sort((Requests req1, Requests req2) -> {
+    private static void sortByRequesterIdAndEventId(List<Requests> list) {
+        list.sort((Requests req1, Requests req2) -> {
             if (req1.getRequester().getId() > req2.getRequester().getId()) {
                 return 1;
             } else if (req1.getRequester().getId().equals(req2.getRequester().getId())) {
@@ -149,30 +134,37 @@ public class RequestServiceImp implements RequestService {
                 return -1;
             }
         });
+    }
+
+    private static void isThereDuplicate(List<Requests> list, long requesterTargetId, long eventTargetId) {
+        sortByRequesterIdAndEventId(list);
 
         int low = 0;
-        int high = collection.size() - 1;
+        int high = list.size() - 1;
         int mid;
 
         while (low <= high) {
             mid = (low + high) / 2;
 
-            if (collection.get(mid).getRequester().getId().equals(target.getRequester().getId())) {
-                if (collection.get(mid).equals(target)) {
-                    return true;
+            if (list.get(mid).getRequester().getId().equals(requesterTargetId)) {
+                if (list.get(mid).getEvent().getId().equals(eventTargetId)) {
+                    log.warn("Request is duplicate");
+                    throw new ConflictException("Request is duplicate");
                 } else {
-                    if (collection.get(mid).getEvent().getId() < target.getEvent().getId()) {
+                    if (list.get(mid).getEvent().getId() < eventTargetId) {
                         low = mid + 1;
                     } else {
                         high = mid - 1;
                     }
                 }
 
-            } else if (collection.get(mid).getRequester().getId() < target.getRequester().getId()) {
+            } else if (list.get(mid).getRequester().getId() < requesterTargetId) {
                 low = mid + 1;
             } else {
                 high = mid - 1;
             }
         }
-        return false;
-    }*/
+    }
+}
+
+

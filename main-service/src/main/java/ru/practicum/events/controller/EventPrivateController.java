@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.EventService;
-import ru.practicum.events.dto.EventFull;
+import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
+import ru.practicum.requests.dto.RequestDto;
+import ru.practicum.requests.dto.RequestsForConfirmation;
 
 import java.util.Collection;
 
@@ -31,17 +33,19 @@ public class EventPrivateController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<EventRespShort> getUsersEvents(@PathVariable(value = "userId") long userId) {
+    public Collection<EventRespShort> getUsersEvents(@PathVariable(value = "userId") long userId,
+                                                     @RequestParam(value = "from", defaultValue = "0") int from,
+                                                     @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("EventPrivateController, getUsersEvents. UserId: {}", userId);
-        return eventService.getUsersEvents(userId);
+        return eventService.getUsersEvents(userId, from, size);
     }
 
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFull getUsersFullEvent(@PathVariable(value = "userId") long userId,
-                                       @PathVariable(value = "eventId") long eventId) {
+    public EventRespFull getUsersFullEventById(@PathVariable(value = "userId") long userId,
+                                               @PathVariable(value = "eventId") long eventId) {
         log.info("EventPrivateController, getUsersFullEvent. UserId: {}, eventId: {}", userId, eventId);
-        return eventService.getUsersFullEvent(userId, eventId);
+        return eventService.getUsersFullEventById(userId, eventId);
     }
 
     @PatchMapping("/{eventId}")
@@ -55,20 +59,18 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public Object getRequestsByEvenId(@PathVariable(value = "userId") long userId,
-                                      @PathVariable(value = "eventId") long eventId) {
+    public Collection<RequestDto> getRequestsByEvenId(@PathVariable(value = "userId") long userId,
+                                                      @PathVariable(value = "eventId") long eventId) {
         log.info("EventPrivateController, getRequestsByEvenId. UserId: {}, eventId: {}", userId, eventId);
-        return null;
+        return eventService.getRequestsByEventId(eventId, userId);
     }
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public Object approveRequest(@PathVariable(value = "userId") long userId,
-                                 @PathVariable(value = "eventId") long eventId) {
+    public Collection<RequestDto> approveRequest(@Valid @RequestBody RequestsForConfirmation requestsForConfirmation,
+                                                 @PathVariable(value = "userId") long userId,
+                                                 @PathVariable(value = "eventId") long eventId) {
         log.info("EventPrivateController, approveRequest. UserId: {}, eventId: {}", userId, eventId);
-        return null;
+        return eventService.approveRequests(requestsForConfirmation, userId, eventId);
     }
-
-
-
 }
