@@ -9,7 +9,6 @@ import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
-import ru.practicum.common.GeneralConstants;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
@@ -122,7 +121,7 @@ public class EventServiceImp implements EventService {
         return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
     }
 
-    @Override
+/*    @Override
     public EventRequest adminsUpdate(EventRequest eventRequest, long eventId) {
         Event updatingEvent = validateAndGetEvent(eventId);
 
@@ -138,7 +137,7 @@ public class EventServiceImp implements EventService {
         addLocation(updatingEvent.getLocation());
 
         return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
-    }
+    }*/
 
     @Override
     public Collection<RequestDto> getRequestsByEventId(long eventId, long userId) {
@@ -163,7 +162,7 @@ public class EventServiceImp implements EventService {
 
         List<Requests> requestsToApprove = requests.subList(0, (freeSlots + 1));
 
-        List<Requests> requestsToCancel = requests.subList((freeSlots + 1), (requests.size() -1));
+        List<Requests> requestsToCancel = requests.subList((freeSlots + 1), (requests.size() - 1));
 
         for (Requests requestToApprove : requestsToApprove) {
             requestToApprove.setStatus(String.valueOf(RequestStatus.ACCEPTED));
@@ -180,14 +179,14 @@ public class EventServiceImp implements EventService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+/*    @Override
     public Collection<EventRespFull> getEventsByConditionalsForAdmin(List<Long> users,
-                                                                         List<String> states,
-                                                                         List<Integer> categories,
-                                                                         LocalDateTime rangeStart,
-                                                                         LocalDateTime rangeEnd,
-                                                                         int from,
-                                                                         int size) {
+                                                                     List<String> states,
+                                                                     List<Integer> categories,
+                                                                     LocalDateTime rangeStart,
+                                                                     LocalDateTime rangeEnd,
+                                                                     int from,
+                                                                     int size) {
         int startPage = from > 0 ? (from / size) : 0;
         Pageable pageable = PageRequest.of(startPage, size);
 
@@ -207,11 +206,11 @@ public class EventServiceImp implements EventService {
             rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
         }
 
-       return eventRepository.findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
+        return eventRepository.findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
                 .stream()
                 .map(EventMapper::mapToEventRespFull)
                 .collect(Collectors.toList());
-    }
+    }*/
 
 
     private int countParticipants(long eventId) {

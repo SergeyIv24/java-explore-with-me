@@ -1,6 +1,5 @@
 package ru.practicum.events;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
@@ -21,7 +20,7 @@ public interface EventService {
 
     EventRequest updateUsersEvent(long userId, long eventId, EventRequest eventRequest);
 
-    EventRequest adminsUpdate(EventRequest eventRequest, long eventId);
+    //EventRequest adminsUpdate(EventRequest eventRequest, long eventId);
 
     Collection<RequestDto> getRequestsByEventId(long eventId, long userId);
 
@@ -29,12 +28,13 @@ public interface EventService {
                                            long userId,
                                            long eventId);
 
-    Collection<EventRespFull> getEventsByConditionalsForAdmin(List<Long> users,
+/*    Collection<EventRespFull> getEventsByConditionalsForAdmin(List<Long> users,
                                                               List<String> states,
                                                               List<Integer> categories,
                                                               LocalDateTime rangeStart,
                                                               LocalDateTime rangeEnd,
                                                               int from,
-                                                              int size);
+                                                              int size);*/
+
 
 }
