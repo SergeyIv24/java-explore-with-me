@@ -2,12 +2,14 @@ package ru.practicum.events.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import ru.practicum.categories.model.Category;
 import ru.practicum.users.model.User;
 
@@ -26,6 +28,7 @@ public class Event {
     private Long id;
 
     @NotBlank(message = "empty annotation")
+    @Length(min = 20, max = 2000)
     private String annotation;
 
     @ManyToOne
@@ -37,6 +40,7 @@ public class Event {
     private LocalDateTime createdOn;
 
     @NotBlank(message = "empty description")
+    @Length(min = 20)
     private String description;
 
     @Column(name = "event_date")
@@ -56,6 +60,7 @@ public class Event {
     private Boolean paid;
 
     @Column(name = "participants_limit")
+    @Min(value = 0, message = "negative participantLimit")
     private Integer participantLimit;
 
     @Column(name = "published_on")
@@ -63,11 +68,12 @@ public class Event {
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")
-    //todo valid not null???
+    @NotNull(message = "requestModeration must be true or false")
     private Boolean requestModeration;
 
     private String state;
 
     @NotBlank(message = "empty title")
+    @Length(min = 3, max = 120)
     private String title;
 }

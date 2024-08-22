@@ -36,7 +36,7 @@ public class EventPrivateController {
     public Collection<EventRespShort> getUsersEvents(@PathVariable(value = "userId") long userId,
                                                      @RequestParam(value = "from", defaultValue = "0") int from,
                                                      @RequestParam(value = "size", defaultValue = "10") int size) {
-        log.info("EventPrivateController, getUsersEvents. UserId: {}", userId);
+        log.info("EventPrivateController, getUsersEvents. UserId: {}, from: {}, size: {}", userId, from, size);
         return eventService.getUsersEvents(userId, from, size);
     }
 

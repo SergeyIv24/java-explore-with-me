@@ -23,7 +23,7 @@ public class User {
     @Length(min = 6, max = 254)
     private String email;
 
-    @NotBlank (message = "empty name")
+    @NotBlank(message = "empty name")
     @Length(min = 2, max = 250)
     private String name;
 }

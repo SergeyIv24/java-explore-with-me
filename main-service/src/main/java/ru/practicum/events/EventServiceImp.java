@@ -9,6 +9,7 @@ import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.common.GeneralConstants;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
@@ -42,6 +43,17 @@ public class EventServiceImp implements EventService {
 
     @Override
     public EventRequest createEvent(EventRequest eventRequest, long userId) {
+
+        if (eventRequest.getRequestModeration() == null) {
+            eventRequest.setRequestModeration(true);
+        }
+        if (eventRequest.getPaid() == null) {
+            eventRequest.setPaid(false);
+        }
+        if (eventRequest.getParticipantLimit() == null) {
+            eventRequest.setParticipantLimit(0);
+        }
+
         validateEventDate(eventRequest.getEventDate());
 
         addLocation(eventRequest.getLocation()); //Adding locations to database because location is separated entity
@@ -70,6 +82,10 @@ public class EventServiceImp implements EventService {
         List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventIds,
                 String.valueOf(RequestStatus.ACCEPTED));
 
+        if (confirmedRequests.isEmpty()) {
+            return events;
+        }
+
         for (int i = 0; i < events.size(); i++) {
             events.get(i).setConfirmedRequests(confirmedRequests.get(i));
         }
@@ -89,6 +105,7 @@ public class EventServiceImp implements EventService {
 
     @Override
     public EventRequest updateUsersEvent(long userId, long eventId, EventRequest eventRequest) {
+
         checkAbilityToUpdate(eventRequest);
         validateEventDate(eventRequest.getEventDate());
         Event updatingEvent = validateAndGetEvent(eventId);
@@ -162,6 +179,40 @@ public class EventServiceImp implements EventService {
                 .map(RequestMapper::mapToRequestDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Collection<EventRespFull> getEventsByConditionalsForAdmin(List<Long> users,
+                                                                         List<String> states,
+                                                                         List<Integer> categories,
+                                                                         LocalDateTime rangeStart,
+                                                                         LocalDateTime rangeEnd,
+                                                                         int from,
+                                                                         int size) {
+        int startPage = from > 0 ? (from / size) : 0;
+        Pageable pageable = PageRequest.of(startPage, size);
+
+        if (states == null) {
+            states = List.of();
+        }
+        if (categories == null) {
+            categories = List.of();
+        }
+        if (users == null) {
+            users = List.of();
+        }
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.parse("1000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+        }
+
+       return eventRepository.findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
+                .stream()
+                .map(EventMapper::mapToEventRespFull)
+                .collect(Collectors.toList());
+    }
+
 
     private int countParticipants(long eventId) {
         return requestRepository.countByEventIdAndStatus(eventId,

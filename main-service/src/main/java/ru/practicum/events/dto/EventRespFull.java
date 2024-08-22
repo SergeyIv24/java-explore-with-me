@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 import ru.practicum.categories.model.Category;
 import ru.practicum.events.model.Location;
 import ru.practicum.users.model.User;
@@ -19,6 +20,7 @@ public class EventRespFull {
     private Long id;
 
     @NotBlank(message = "empty annotation")
+    @Length(min = 20, max = 2000)
     private String annotation;
 
     @NotNull(message = "Category must be existed")
@@ -31,6 +33,7 @@ public class EventRespFull {
     private LocalDateTime createdOn;
 
     @NotBlank(message = "empty description")
+    @Length(min = 20)
     private String description;
 
     @NotNull(message = "event date must be existed")
@@ -46,6 +49,7 @@ public class EventRespFull {
     @NotNull(message = "paid must be true or false")
     private Boolean paid;
 
+    @Min(value = 0, message = "negative participantLimit")
     private Integer participantLimit;
 
     @NotNull(message = "empty publishedOn")
@@ -56,6 +60,7 @@ public class EventRespFull {
     private String state;
 
     @NotBlank(message = "empty title")
+    @Length(min = 3, max = 120)
     private String title;
 
     //private Long views;
