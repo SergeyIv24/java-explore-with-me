@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.events.EventService;
+import ru.practicum.events.services.EventServicePrivate;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
@@ -20,7 +20,7 @@ import java.util.Collection;
 @Slf4j
 public class EventPrivateController {
 
-    private final EventService eventService;
+    private final EventServicePrivate eventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

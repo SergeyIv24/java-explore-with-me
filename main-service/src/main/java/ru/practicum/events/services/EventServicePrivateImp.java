@@ -1,4 +1,4 @@
-package ru.practicum.events;
+package ru.practicum.events.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +9,10 @@ import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.events.EventMapper;
+import ru.practicum.events.EventRepository;
+import ru.practicum.events.EventStates;
+import ru.practicum.events.LocationRepository;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
@@ -32,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventServiceImp implements EventService {
+public class EventServicePrivateImp implements EventServicePrivate {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -121,24 +125,6 @@ public class EventServiceImp implements EventService {
         return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
     }
 
-/*    @Override
-    public EventRequest adminsUpdate(EventRequest eventRequest, long eventId) {
-        Event updatingEvent = validateAndGetEvent(eventId);
-
-        updatingEvent.setAnnotation(eventRequest.getAnnotation());
-        updatingEvent.setCategory(validateAndGetCategory(eventRequest.getCategory()));
-        updatingEvent.setDescription(eventRequest.getDescription());
-        updatingEvent.setEventDate(eventRequest.getEventDate());
-        updatingEvent.setLocation(eventRequest.getLocation());
-        updatingEvent.setPaid(eventRequest.getPaid());
-        updatingEvent.setParticipantLimit(eventRequest.getParticipantLimit());
-        updatingEvent.setRequestModeration(eventRequest.getRequestModeration());
-        updatingEvent.setState(eventRequest.getState());
-        addLocation(updatingEvent.getLocation());
-
-        return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
-    }*/
-
     @Override
     public Collection<RequestDto> getRequestsByEventId(long eventId, long userId) {
         validateAndGetEvent(eventId);
@@ -179,40 +165,6 @@ public class EventServiceImp implements EventService {
                 .collect(Collectors.toList());
     }
 
-/*    @Override
-    public Collection<EventRespFull> getEventsByConditionalsForAdmin(List<Long> users,
-                                                                     List<String> states,
-                                                                     List<Integer> categories,
-                                                                     LocalDateTime rangeStart,
-                                                                     LocalDateTime rangeEnd,
-                                                                     int from,
-                                                                     int size) {
-        int startPage = from > 0 ? (from / size) : 0;
-        Pageable pageable = PageRequest.of(startPage, size);
-
-        if (states == null) {
-            states = List.of();
-        }
-        if (categories == null) {
-            categories = List.of();
-        }
-        if (users == null) {
-            users = List.of();
-        }
-        if (rangeStart == null) {
-            rangeStart = LocalDateTime.parse("1000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
-        }
-        if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
-        }
-
-        return eventRepository.findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
-                .stream()
-                .map(EventMapper::mapToEventRespFull)
-                .collect(Collectors.toList());
-    }*/
-
-
     private int countParticipants(long eventId) {
         return requestRepository.countByEventIdAndStatus(eventId,
                 String.valueOf(RequestStatus.ACCEPTED));
@@ -235,13 +187,13 @@ public class EventServiceImp implements EventService {
         while (leftIdx < rightIdx) {
 
             if (!request.get(leftIdx).getStatus().equals(RequestStatus.PENDING.name())) {
-                log.warn(""); //todo
+                log.warn("Bad status"); //todo
                 throw new ConflictException("Request with id = " + request.get(leftIdx).getId() + " has status: "
                         + request.get(leftIdx).getStatus());
             }
 
             if (!request.get(rightIdx).getStatus().equals(RequestStatus.PENDING.name())) {
-                log.warn("");
+                log.warn("Bad status");
                 throw new ConflictException("Request with id = " + request.get(rightIdx).getId() + " has status: "
                         + request.get(rightIdx).getStatus());
             }

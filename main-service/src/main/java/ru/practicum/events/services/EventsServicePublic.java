@@ -13,6 +13,6 @@ public interface EventsServicePublic {
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, boolean onlyAvailable,
                                             String sort, int from, int size);
 
-    EventRespFull getEvent(long eventId);
+    EventRespFull getEvent(long eventId, String path);
 
 }

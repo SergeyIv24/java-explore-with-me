@@ -52,6 +52,4 @@ public class StatisticController {
     private LocalDateTime convertToLocalDataTime(String dataTime) {
         return LocalDateTime.parse(dataTime, GeneralConstants.DATE_FORMATTER);
     }
-
-
 }

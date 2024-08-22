@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.common.GeneralConstants;
+import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.EventStates;
@@ -15,19 +18,26 @@ import ru.practicum.events.dto.EventRespShort;
 import ru.practicum.events.model.Event;
 import ru.practicum.requests.RequestRepository;
 import ru.practicum.requests.RequestStatus;
+import ru.practicum.statistic.StatisticClient;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EventServicePublicImp implements EventsServicePublic {
 
+
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
+    private final StatisticClient statisticClient;
+
+    private final LocalDateTime defaultStartTime = LocalDateTime.parse("1000-12-12 12:12:12",
+            GeneralConstants.DATE_FORMATTER);
+    private final LocalDateTime defaultEndTime = LocalDateTime.parse("3000-12-12 12:12:12",
+            GeneralConstants.DATE_FORMATTER);
 
     @Override
     public Collection<EventRespShort> searchEvents(String text, List<Integer> categories, Boolean paid,
@@ -43,21 +53,39 @@ public class EventServicePublicImp implements EventsServicePublic {
             categories = List.of();
         }
         if (rangeStart == null) {
-            rangeStart = LocalDateTime.parse("1000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+            rangeStart = LocalDateTime.now().plusMinutes(1L);
         }
         if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+            rangeEnd = defaultEndTime;
         }
 
-        List<Event> events = eventRepository.searchEvents(text,categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable); //paid, rangeStart, rangeEnd,
-        return events
+        List<EventRespShort> events = eventRepository
+                .searchEvents(text,categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable)
                 .stream()
                 .map(EventMapper::mapToEventRespShort)
-                .collect(Collectors.toList());
+                .toList();
+
+        List<Long> eventsIds = events.stream()
+                .map(EventRespShort::getId)
+                .toList();
+
+        List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventsIds,
+                String.valueOf(RequestStatus.ACCEPTED));
+
+        if (confirmedRequests.isEmpty()) {
+            return events;
+        }
+
+        for (int i = 0; i < events.size(); i++) {
+            events.get(i).setConfirmedRequests(confirmedRequests.get(i));
+        }
+
+        return events;
+
     }
 
     @Override
-    public EventRespFull getEvent(long eventId) {
+    public EventRespFull getEvent(long eventId, String path) {
         Event event = eventRepository.findByIdAndState(eventId, String.valueOf(EventStates.PUBLISHED))
                 .orElseThrow(() -> {
                     log.warn("Attempt to get unknown event");
@@ -69,6 +97,28 @@ public class EventServicePublicImp implements EventsServicePublic {
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);
+        eventFull.setViews(getViews(defaultStartTime, defaultEndTime, List.of(path)));
         return eventFull;
+    }
+
+    private long getViews(LocalDateTime start, LocalDateTime end, List<String> uris) {
+        ResponseEntity<Object> response = statisticClient.getStats(start, end, uris, false);
+
+        if (response.getStatusCode().is4xxClientError()) {
+            log.warn("Bad request. Status code is {}", response.getStatusCode());
+            throw new ClientException("Bad request. Status code is: " + response.getStatusCode());
+        }
+
+        if (response.getStatusCode().is5xxServerError()) {
+            log.warn("Internal server error statusCode is {}", response.getStatusCode());
+            throw new ClientException("Internal server error statusCode is " + response.getStatusCode());
+        }
+
+        if (response.getBody() == null) {
+            log.warn("Returned empty body");
+            throw new ClientException("Returned empty body");
+        }
+        StatisticResponse statisticResponse = (StatisticResponse) response.getBody();
+        return statisticResponse.getHits();
     }
 }

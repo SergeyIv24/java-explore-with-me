@@ -36,7 +36,6 @@ public class Event {
     private Category category;
 
     @Column(name = "created_on")
-    //todo valid date???
     private LocalDateTime createdOn;
 
     @NotBlank(message = "empty description")
