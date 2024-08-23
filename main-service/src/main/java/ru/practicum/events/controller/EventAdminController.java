@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespFull;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.services.EventsServiceAdmin;
 
 import java.time.LocalDateTime;
@@ -24,9 +24,11 @@ public class EventAdminController {
 
     @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventRequest adminsUpdate(@Valid @RequestBody EventRequest eventRequest,
-                                     @PathVariable("eventId") long eventId) {
-        return eventService.adminsUpdate(eventRequest, eventId);
+    public EventRespFull adminsUpdate(@Valid @RequestBody EventUpdate eventUpdate,
+                                      @PathVariable("eventId") long eventId) {
+        log.info("EventAdminController, adminsUpdate. EventId: {}, eventRequest: {}", eventId, eventUpdate);
+        return eventService.adminsUpdate(eventUpdate, eventId);
+
     }
 
     @GetMapping

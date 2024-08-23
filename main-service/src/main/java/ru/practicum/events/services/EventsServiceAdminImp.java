@@ -12,10 +12,12 @@ import ru.practicum.common.GeneralConstants;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.LocationRepository;
-import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespFull;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.model.Location;
+import ru.practicum.requests.RequestRepository;
+import ru.practicum.requests.RequestStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -31,23 +33,25 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final CategoriesRepository categoriesRepository;
+    private final RequestRepository requestRepository;
 
     @Override
-    public EventRequest adminsUpdate(EventRequest eventRequest, long eventId) {
+    public EventRespFull adminsUpdate(EventUpdate eventUpdate, long eventId) {
+
         Event updatingEvent = validateAndGetEvent(eventId);
 
-        updatingEvent.setAnnotation(eventRequest.getAnnotation());
-        updatingEvent.setCategory(validateAndGetCategory(eventRequest.getCategory()));
-        updatingEvent.setDescription(eventRequest.getDescription());
-        updatingEvent.setEventDate(eventRequest.getEventDate());
-        updatingEvent.setLocation(eventRequest.getLocation());
-        updatingEvent.setPaid(eventRequest.getPaid());
-        updatingEvent.setParticipantLimit(eventRequest.getParticipantLimit());
-        updatingEvent.setRequestModeration(eventRequest.getRequestModeration());
-        updatingEvent.setState(eventRequest.getState());
-        addLocation(updatingEvent.getLocation());
+        Category category = updatingEvent.getCategory();
+        if (eventUpdate.getCategory() != null) {
+            category = validateAndGetCategory(eventUpdate.getCategory());
+        }
 
-        return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
+        Event updatedEvent = eventRepository.save(EventMapper
+                .updateEvent(updatingEvent, eventUpdate, category));
+        long confirmedRequests = requestRepository
+                .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.ACCEPTED));
+        EventRespFull eventFull = EventMapper.mapToEventRespFull(updatedEvent);
+        eventFull.setConfirmedRequests(confirmedRequests);
+        return eventFull;
     }
 
     @Override

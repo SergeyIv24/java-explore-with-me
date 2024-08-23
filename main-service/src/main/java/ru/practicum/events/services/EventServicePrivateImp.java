@@ -16,6 +16,7 @@ import ru.practicum.events.LocationRepository;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.model.Location;
 import ru.practicum.requests.RequestMapper;
@@ -66,8 +67,13 @@ public class EventServicePrivateImp implements EventServicePrivate {
         addingEvent.setInitiator(validateAndGetUser(userId));
         addingEvent.setCategory(validateAndGetCategory(eventRequest.getCategory()));
         addingEvent.setCreatedOn(LocalDateTime.now());
-        addingEvent.setState(String.valueOf(EventStates.WAITING));
-        return EventMapper.mapToEventRequest(eventRepository.save(addingEvent));
+        addingEvent.setState(String.valueOf(EventStates.PENDING));
+
+        Event saved = eventRepository.save(addingEvent);
+        EventRequest added = EventMapper.mapToEventRequest(saved);
+
+        //return EventMapper.mapToEventRequest(eventRepository.save(addingEvent));
+        return added;
     }
 
     @Override
@@ -107,22 +113,23 @@ public class EventServicePrivateImp implements EventServicePrivate {
     }
 
     @Override
-    public EventRequest updateUsersEvent(long userId, long eventId, EventRequest eventRequest) {
+    public EventRequest updateUsersEvent(long userId, long eventId, EventUpdate eventUpdate) {
 
-        checkAbilityToUpdate(eventRequest);
-        validateEventDate(eventRequest.getEventDate());
         Event updatingEvent = validateAndGetEvent(eventId);
+        checkAbilityToUpdate(updatingEvent);
 
-        updatingEvent.setAnnotation(eventRequest.getAnnotation());
-        updatingEvent.setCategory(validateAndGetCategory(eventRequest.getCategory()));
-        updatingEvent.setDescription(eventRequest.getDescription());
-        updatingEvent.setEventDate(eventRequest.getEventDate());
-        updatingEvent.setLocation(eventRequest.getLocation());
-        updatingEvent.setPaid(eventRequest.getPaid());
-        updatingEvent.setParticipantLimit(eventRequest.getParticipantLimit());
-        updatingEvent.setTitle(eventRequest.getTitle());
+        if (eventUpdate.getEventDate() != null) {
+            validateEventDate(eventUpdate.getEventDate());
+        }
 
-        return EventMapper.mapToEventRequest(eventRepository.save(updatingEvent));
+        Category category = updatingEvent.getCategory();
+        if (eventUpdate.getCategory() != null) {
+            category = validateAndGetCategory(eventUpdate.getCategory());
+        }
+
+        Event updatedEvent = eventRepository.save(EventMapper.updateEvent(updatingEvent, eventUpdate, category));
+
+        return EventMapper.mapToEventRequest(updatedEvent);
     }
 
     @Override
@@ -243,11 +250,11 @@ public class EventServicePrivateImp implements EventServicePrivate {
         return category.get();
     }
 
-    private void checkAbilityToUpdate(EventRequest eventRequest) {
-        if (!(eventRequest.getState().equals(String.valueOf(EventStates.WAITING)))
-                && !(eventRequest.getState().equals(String.valueOf(EventStates.CANCELED)))) {
-            log.warn("Update is prohibited. eventRequest stat: {}", eventRequest.getState());
-            throw new ConflictException("States must be" + EventStates.WAITING + " or " + EventStates.CANCELED);
+    private void checkAbilityToUpdate(Event event) {
+        if (!(event.getState().equals(String.valueOf(EventStates.PENDING)))
+                && !(event.getState().equals(String.valueOf(EventStates.CANCELED)))) {
+            log.warn("Update is prohibited. event stat: {}", event.getState());
+            throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
         }
     }
 }

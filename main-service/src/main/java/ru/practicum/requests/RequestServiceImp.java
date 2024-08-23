@@ -71,7 +71,7 @@ public class RequestServiceImp implements RequestService {
     }
 
     private void validateEventStatesAndRequesterId(Event event, Long requesterId) {
-        if (event.getState().equals(String.valueOf(EventStates.WAITING))
+        if (event.getState().equals(String.valueOf(EventStates.PENDING))
                 || event.getState().equals(String.valueOf(EventStates.CANCELED))) {
             log.warn("Event with EventId: {} is not published. Request is canceled", event.getId());
             throw new ConflictException("Event with id = " + event.getId() + " is not published");

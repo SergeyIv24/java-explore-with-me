@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.services.EventServicePrivate;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
@@ -52,9 +53,9 @@ public class EventPrivateController {
     @ResponseStatus(HttpStatus.OK)
     public EventRequest updateUsersEvent(@PathVariable(value = "userId") long userId,
                                          @PathVariable(value = "eventId") long eventId,
-                                         @Valid @RequestBody EventRequest eventRequest) {
+                                         @Valid @RequestBody EventUpdate eventUpdate) {
         log.info("EventPrivateController, updateUsersEvent. UserId: {}, eventId: {}", userId, eventId);
-        return eventService.updateUsersEvent(userId, eventId, eventRequest);
+        return eventService.updateUsersEvent(userId, eventId, eventUpdate);
     }
 
     @GetMapping("/{eventId}/requests")

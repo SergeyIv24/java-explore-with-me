@@ -2,10 +2,15 @@ package ru.practicum.events;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.categories.model.Category;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRespShort;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.model.Event;
+import ru.practicum.events.services.EventStateAction;
+
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
@@ -76,5 +81,64 @@ public class EventMapper {
                 .publishedOn(event.getPublishedOn())
                 .state(event.getState())
                 .build();
+    }
+
+    public static Event updateEvent(Event updatingEvent, EventUpdate eventUpdate, Category category) {
+
+        if (eventUpdate.getId() != null) {
+            updatingEvent.setId(eventUpdate.getId());
+        }
+
+        if (eventUpdate.getAnnotation() != null) {
+            updatingEvent.setAnnotation(eventUpdate.getAnnotation());
+        }
+
+        if (eventUpdate.getCategory() != null) {
+            updatingEvent.setCategory(category);
+        }
+
+        if (eventUpdate.getDescription() != null) {
+            updatingEvent.setDescription(eventUpdate.getDescription());
+        }
+
+        if (eventUpdate.getLocation() != null) {
+            updatingEvent.setLocation(eventUpdate.getLocation());
+        }
+
+        if (eventUpdate.getPaid() != null) {
+            updatingEvent.setPaid(eventUpdate.getPaid());
+        }
+
+        if (eventUpdate.getParticipantLimit() != null) {
+            updatingEvent.setParticipantLimit(eventUpdate.getParticipantLimit());
+        }
+
+        if (eventUpdate.getRequestModeration() != null) {
+            updatingEvent.setRequestModeration(eventUpdate.getRequestModeration());
+        }
+
+        if (eventUpdate.getTitle() != null) {
+            updatingEvent.setTitle(eventUpdate.getTitle());
+        }
+
+        if (eventUpdate.getCreatedOn() != null) {
+            updatingEvent.setCreatedOn(eventUpdate.getCreatedOn());
+        }
+
+        if (eventUpdate.getStateAction() != null) {
+            if (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.PUBLISH_EVENT))) {
+                updatingEvent.setState(String.valueOf(EventStates.PUBLISHED));
+                updatingEvent.setPublishedOn(LocalDateTime.now());
+            }
+
+            if (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.REJECT_EVENT))) {
+                updatingEvent.setState(String.valueOf(EventStates.CANCELED));
+            }
+
+            if (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.SEND_TO_REVIEW))) {
+                updatingEvent.setState(String.valueOf(EventStates.PENDING));
+            }
+        }
+        return updatingEvent;
     }
 }

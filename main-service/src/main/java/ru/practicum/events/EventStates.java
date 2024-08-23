@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum EventStates {
-    WAITING(1),
+    PENDING(1),
     PUBLISHED(2),
     CANCELED(3);
 

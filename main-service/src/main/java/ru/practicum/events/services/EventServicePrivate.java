@@ -3,6 +3,7 @@ package ru.practicum.events.services;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
+import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.requests.dto.RequestDto;
 import ru.practicum.requests.dto.RequestsForConfirmation;
 
@@ -16,7 +17,7 @@ public interface EventServicePrivate {
 
     EventRespFull getUsersFullEventById(long userId, long eventId);
 
-    EventRequest updateUsersEvent(long userId, long eventId, EventRequest eventRequest);
+    EventRequest updateUsersEvent(long userId, long eventId, EventUpdate eventUpdate);
 
     Collection<RequestDto> getRequestsByEventId(long eventId, long userId);
 

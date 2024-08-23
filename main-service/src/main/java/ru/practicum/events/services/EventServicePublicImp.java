@@ -23,6 +23,7 @@ import ru.practicum.statistic.StatisticClient;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -69,6 +70,8 @@ public class EventServicePublicImp implements EventsServicePublic {
                 .map(EventRespShort::getId)
                 .toList();
 
+
+
         List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventsIds,
                 String.valueOf(RequestStatus.ACCEPTED));
 
@@ -97,11 +100,18 @@ public class EventServicePublicImp implements EventsServicePublic {
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);
-        eventFull.setViews(getViews(defaultStartTime, defaultEndTime, List.of(path)));
+        eventFull.setViews(getViews(defaultStartTime, defaultEndTime, List.of(path)).get(0));
         return eventFull;
     }
 
-    private long getViews(LocalDateTime start, LocalDateTime end, List<String> uris) {
+    private List<String> prepareUris(List<Long> ids) {
+        return ids
+                .stream()
+                .map((id) -> "event/" + id)
+                .collect(Collectors.toList());
+    }
+
+    private List<Long> getViews(LocalDateTime start, LocalDateTime end, List<String> uris) {
         ResponseEntity<Object> response = statisticClient.getStats(start, end, uris, false);
 
         if (response.getStatusCode().is4xxClientError()) {
@@ -118,7 +128,10 @@ public class EventServicePublicImp implements EventsServicePublic {
             log.warn("Returned empty body");
             throw new ClientException("Returned empty body");
         }
-        StatisticResponse statisticResponse = (StatisticResponse) response.getBody();
-        return statisticResponse.getHits();
+        List<StatisticResponse> statisticResponse = (List<StatisticResponse>) response.getBody();
+        return statisticResponse
+                .stream()
+                .map(StatisticResponse::getHits)
+                .collect(Collectors.toList());
     }
 }
