@@ -18,7 +18,6 @@ public class CompilationRequest {
     @Length(max = 50)
     private String title;
 
-    @NotNull(message = "Pinned must not be null")
     private Boolean pinned;
 
     @NotNull(message = "Events list must be existed")

@@ -93,14 +93,14 @@ public class EventPublicController {
                 .build();
     }
 
-    private void validateResponses(ResponseEntity<Object> response) {
+    private void validateResponses(ResponseEntity<?> response) {
         if (response.getStatusCode().is4xxClientError()) {
-            log.warn("EventPublicController. Status code: {}, responseBody: {}", response.getStatusCode(),
+            log.error("EventPublicController. Status code: {}, responseBody: {}", response.getStatusCode(),
                     response.getBody());
         }
 
         if (response.getStatusCode().is5xxServerError()) {
-            log.warn("EventPublicController. Status code: {}, responseBody: {}", response.getStatusCode(),
+            log.error("EventPublicController. Status code: {}, responseBody: {}", response.getStatusCode(),
                     response.getBody());
         }
     }

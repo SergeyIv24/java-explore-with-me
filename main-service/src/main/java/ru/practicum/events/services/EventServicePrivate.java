@@ -15,7 +15,7 @@ public interface EventServicePrivate {
 
     Collection<EventRespShort> getUsersEvents(long userId, int from, int size);
 
-    EventRespFull getUsersFullEventById(long userId, long eventId);
+    EventRespFull getUsersFullEventById(long userId, long eventId, String path);
 
     EventRequest updateUsersEvent(long userId, long eventId, EventUpdate eventUpdate);
 

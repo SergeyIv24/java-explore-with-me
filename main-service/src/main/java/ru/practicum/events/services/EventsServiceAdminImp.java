@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
 import ru.practicum.common.GeneralConstants;
+import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.EventStates;
@@ -20,10 +23,13 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.model.Location;
 import ru.practicum.requests.RequestRepository;
 import ru.practicum.requests.RequestStatus;
+import ru.practicum.requests.dto.EventIdByRequestsCount;
+import ru.practicum.statistic.StatisticClient;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,6 +42,7 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
     private final LocationRepository locationRepository;
     private final CategoriesRepository categoriesRepository;
     private final RequestRepository requestRepository;
+    private final StatisticClient statisticClient;
 
     @Override
     public EventRespFull adminsUpdate(EventUpdate eventUpdate, long eventId) {
@@ -90,14 +97,47 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
             rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
         }
 
-        return eventRepository.findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
+        List<EventRespFull> eventRespFulls = eventRepository
+                .findByConditionals(states, categories, users, rangeStart, rangeEnd, pageable)
                 .stream()
                 .map(EventMapper::mapToEventRespFull)
-                .collect(Collectors.toList());
+                .toList();
+
+        List<Long> eventsIds = eventRespFulls
+                .stream()
+                .map(EventRespFull::getId)
+                .toList();
+
+        Map<Long, Long> confirmedRequestsByEvents = requestRepository
+                .countByEventIdInAndStatusGroupByEvent(eventsIds, String.valueOf(RequestStatus.CONFIRMED))
+                .stream()
+                .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
+
+        List<Long> views = getViews(ru.practicum.GeneralConstants.defaultStartTime, ru.practicum.GeneralConstants.defaultEndTime,
+                prepareUris(eventsIds), true);
+
+        for (int i = 0; i < eventRespFulls.size(); i++) {
+
+            if ((!views.isEmpty()) && (views.get(i) != 0)) {
+                eventRespFulls.get(i).setViews(views.get(i));
+            } else {
+                eventRespFulls.get(i).setViews(0L);
+            }
+            eventRespFulls.get(i)
+                    .setConfirmedRequests(confirmedRequestsByEvents
+                            .getOrDefault(eventRespFulls.get(i).getId(), 0L));
+        }
+        return eventRespFulls;
     }
 
     private void addLocation(Location location) {
         locationRepository.save(location);
+    }
+
+    private String prepareUris(List<Long> ids) {
+        return ids
+                .stream()
+                .map((id) -> "event/" + id).collect(Collectors.joining());
     }
 
     private Event validateAndGetEvent(long eventId) {
@@ -127,11 +167,32 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
             log.warn("Update is prohibited. event stat: {}", event.getState());
             throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
         }
+    }
 
-/*        if (!(event.getState().equals(String.valueOf(EventStates.PENDING)))
-                && (event.getState().equals(String.valueOf(EventStates.CANCELED)))) {
-            log.warn("Update is prohibited. event stat: {}", event.getState());
-            throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
-        }*/
+    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
+        ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
+
+
+        if (response.getStatusCode().is4xxClientError()) {
+            log.warn("Bad request. Status code is {}", response.getStatusCode());
+            throw new ClientException("Bad request. Status code is: " + response.getStatusCode());
+        }
+
+        if (response.getStatusCode().is5xxServerError()) {
+            log.warn("Internal server error statusCode is {}", response.getStatusCode());
+            throw new ClientException("Internal server error statusCode is " + response.getStatusCode());
+        }
+
+        if (response.getBody() == null) {
+            log.warn("Returned empty body");
+            throw new ClientException("Returned empty body");
+        }
+
+        List<StatisticResponse> statisticResponses = response.getBody();
+
+        return statisticResponses
+                .stream()
+                .map(StatisticResponse::getHits)
+                .collect(Collectors.toList());
     }
 }

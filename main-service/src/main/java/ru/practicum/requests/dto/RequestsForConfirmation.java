@@ -11,10 +11,10 @@ import java.util.List;
 @Builder
 public class RequestsForConfirmation {
 
-    @NotNull(message = "Empty requestsIds")
+    //@NotNull(message = "Empty requestsIds")
     private List<Long> requestIds;
 
-    @NotBlank(message = "Empty status")
+    //@NotBlank(message = "Empty status")
     private String status;
 
 }

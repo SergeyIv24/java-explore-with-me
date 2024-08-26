@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.NotFoundException;
-import ru.practicum.common.GeneralConstants;
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
@@ -18,11 +18,11 @@ import ru.practicum.events.dto.EventRespShort;
 import ru.practicum.events.model.Event;
 import ru.practicum.requests.RequestRepository;
 import ru.practicum.requests.RequestStatus;
+import ru.practicum.requests.dto.EventIdByRequestsCount;
 import ru.practicum.statistic.StatisticClient;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,19 +70,24 @@ public class EventServicePublicImp implements EventsServicePublic {
                 .map(EventRespShort::getId)
                 .toList();
 
+        Map<Long, Long> confirmedRequestsByEvents = requestRepository
+                .countByEventIdInAndStatusGroupByEvent(eventsIds, String.valueOf(RequestStatus.CONFIRMED))
+                .stream()
+                .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-
-        List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventsIds,
-                String.valueOf(RequestStatus.CONFIRMED));
-
-        if (confirmedRequests.isEmpty()) {
-            return events;
-        }
+        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
+                prepareUris(eventsIds), true);
 
         for (int i = 0; i < events.size(); i++) {
-            events.get(i).setConfirmedRequests(confirmedRequests.get(i));
+            if ((!views.isEmpty()) && (views.get(i) != 0)) {
+                events.get(i).setViews(views.get(i));
+            } else {
+                events.get(i).setViews(0L);
+            }
+            events.get(i)
+                    .setConfirmedRequests(confirmedRequestsByEvents
+                            .getOrDefault(events.get(i).getId(), 0L));
         }
-
         return events;
 
     }
@@ -100,19 +105,22 @@ public class EventServicePublicImp implements EventsServicePublic {
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);
-        eventFull.setViews(getViews(defaultStartTime, defaultEndTime, List.of(path)).get(0));
+        List<Long> views = getViews(defaultStartTime, defaultEndTime, path, true);
+        if (views.isEmpty()) {
+            eventFull.setViews(0L);
+        }
+        eventFull.setViews(views.get(0));
         return eventFull;
     }
 
-    private List<String> prepareUris(List<Long> ids) {
+    private String prepareUris(List<Long> ids) {
         return ids
                 .stream()
-                .map((id) -> "event/" + id)
-                .collect(Collectors.toList());
+                .map((id) -> "event/" + id).collect(Collectors.joining());
     }
 
-    private List<Long> getViews(LocalDateTime start, LocalDateTime end, List<String> uris) {
-        ResponseEntity<Object> response = statisticClient.getStats(start, end, uris, false);
+    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
+        ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
 
         if (response.getStatusCode().is4xxClientError()) {
             log.warn("Bad request. Status code is {}", response.getStatusCode());
@@ -128,10 +136,14 @@ public class EventServicePublicImp implements EventsServicePublic {
             log.warn("Returned empty body");
             throw new ClientException("Returned empty body");
         }
-        List<StatisticResponse> statisticResponse = (List<StatisticResponse>) response.getBody();
-        return statisticResponse
+
+        List<StatisticResponse> statisticResponses = response.getBody();
+
+        return statisticResponses
                 .stream()
                 .map(StatisticResponse::getHits)
                 .collect(Collectors.toList());
     }
+
+
 }

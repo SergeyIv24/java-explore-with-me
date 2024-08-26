@@ -1,5 +1,7 @@
 package ru.practicum.events.controller;
 
+import jakarta.annotation.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +46,10 @@ public class EventPrivateController {
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventRespFull getUsersFullEventById(@PathVariable(value = "userId") long userId,
-                                               @PathVariable(value = "eventId") long eventId) {
+                                               @PathVariable(value = "eventId") long eventId,
+                                               HttpServletRequest request) {
         log.info("EventPrivateController, getUsersFullEvent. UserId: {}, eventId: {}", userId, eventId);
-        return eventService.getUsersFullEventById(userId, eventId);
+        return eventService.getUsersFullEventById(userId, eventId, request.getRequestURI());
     }
 
     @PatchMapping("/{eventId}")
@@ -68,7 +71,7 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<RequestDto> approveRequest(@Valid @RequestBody RequestsForConfirmation requestsForConfirmation,
+    public Collection<RequestDto> approveRequest(@RequestBody RequestsForConfirmation requestsForConfirmation,
                                                  @PathVariable(value = "userId") long userId,
                                                  @PathVariable(value = "eventId") long eventId) {
         log.info("EventPrivateController, approveRequest. UserId: {}, eventId: {}", userId, eventId);

@@ -1,5 +1,6 @@
 package ru.practicum.statistic;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.BaseClient;
+import ru.practicum.dto.StatisticResponse;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -28,8 +30,8 @@ public class StatisticClient extends BaseClient {
                 .build());
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end,
-                                           @Nullable List<String> uris, boolean unique) {
+    public ResponseEntity<List<StatisticResponse>> getStats(LocalDateTime start, LocalDateTime end,
+                                                      @Nullable String uris, boolean unique) {
 
         String encodedStartData = encodeParameters(convertLocalDataTimeToString(start));
         String encodedEndData = encodeParameters(convertLocalDataTimeToString(end));
@@ -42,7 +44,9 @@ public class StatisticClient extends BaseClient {
             parameters.put("uris", uris);
         }
 
-        return get("/stat" + "?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return getList("/stats" + "?start={start}&end={end}&uris={uris}&unique={unique}",
+                parameters,
+                new ParameterizedTypeReference<>() {});
     }
 
     public ResponseEntity<Object> addStat(StatisticDto statisticDto) {

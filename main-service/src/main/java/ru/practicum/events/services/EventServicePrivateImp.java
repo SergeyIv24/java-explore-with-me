@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
+import ru.practicum.GeneralConstants;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.EventStates;
@@ -22,15 +26,18 @@ import ru.practicum.events.model.Location;
 import ru.practicum.requests.RequestMapper;
 import ru.practicum.requests.RequestRepository;
 import ru.practicum.requests.RequestStatus;
+import ru.practicum.requests.dto.EventIdByRequestsCount;
 import ru.practicum.requests.dto.RequestDto;
 import ru.practicum.requests.dto.RequestsForConfirmation;
 import ru.practicum.requests.model.Requests;
+import ru.practicum.statistic.StatisticClient;
 import ru.practicum.users.UserRepository;
 import ru.practicum.users.model.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,6 +51,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
     private final CategoriesRepository categoriesRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final StatisticClient statisticClient;
 
     @Override
     public EventRequest createEvent(EventRequest eventRequest, long userId) {
@@ -86,27 +94,41 @@ public class EventServicePrivateImp implements EventServicePrivate {
 
         List<Long> eventIds = events.stream().map(EventRespShort::getId).toList();
 
-        List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventIds,
-                String.valueOf(RequestStatus.CONFIRMED));
+        Map<Long, Long> confirmedRequestsByEvents = requestRepository
+                .countByEventIdInAndStatusGroupByEvent(eventIds, String.valueOf(RequestStatus.CONFIRMED))
+                .stream()
+                .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        if (confirmedRequests.isEmpty()) {
-            return events;
-        }
+        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
+                prepareUris(eventIds), true);
 
         for (int i = 0; i < events.size(); i++) {
-            events.get(i).setConfirmedRequests(confirmedRequests.get(i));
+
+            if ((!views.isEmpty()) && (views.get(i) != 0)) {
+                events.get(i).setViews(views.get(i));
+            } else {
+                events.get(i).setViews(0L);
+            }
+            events.get(i)
+                    .setConfirmedRequests(confirmedRequestsByEvents
+                            .getOrDefault(events.get(i).getId(), 0L));
         }
 
         return events;
     }
 
     @Override
-    public EventRespFull getUsersFullEventById(long userId, long eventId) {
+    public EventRespFull getUsersFullEventById(long userId, long eventId, String path) {
         Event event = validateAndGetEvent(eventId);
         long confirmedRequests = requestRepository
                 .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.CONFIRMED));
         EventRespFull eventRespFull = EventMapper.mapToEventRespFull(event);
         eventRespFull.setConfirmedRequests(confirmedRequests);
+        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime, path, true);
+        if (views.isEmpty()) {
+            eventRespFull.setViews(0L);
+        }
+        eventRespFull.setViews(views.get(0));
         return eventRespFull;
     }
 
@@ -168,6 +190,12 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 .stream()
                 .map(RequestMapper::mapToRequestDto)
                 .collect(Collectors.toList());
+    }
+
+    private String prepareUris(List<Long> ids) {
+        return ids
+                .stream()
+                .map((id) -> "event/" + id).collect(Collectors.joining());
     }
 
     private int countParticipants(long eventId) {
@@ -254,5 +282,32 @@ public class EventServicePrivateImp implements EventServicePrivate {
             log.warn("Update is prohibited. event stat: {}", event.getState());
             throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
         }
+    }
+
+    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
+        ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
+
+
+        if (response.getStatusCode().is4xxClientError()) {
+            log.warn("Bad request. Status code is {}", response.getStatusCode());
+            throw new ClientException("Bad request. Status code is: " + response.getStatusCode());
+        }
+
+        if (response.getStatusCode().is5xxServerError()) {
+            log.warn("Internal server error statusCode is {}", response.getStatusCode());
+            throw new ClientException("Internal server error statusCode is " + response.getStatusCode());
+        }
+
+        if (response.getBody() == null) {
+            log.warn("Returned empty body");
+            throw new ClientException("Returned empty body");
+        }
+
+        List<StatisticResponse> statisticResponses = response.getBody();
+
+        return statisticResponses
+                .stream()
+                .map(StatisticResponse::getHits)
+                .collect(Collectors.toList());
     }
 }
