@@ -35,14 +35,19 @@ public class RequestServiceImp implements RequestService {
                 .builder()
                 .created(LocalDateTime.now())
                 .build();
+
         addingRequest.setEvent(event);
         addingRequest.setRequester(user); //Check and set user
 
+        addingRequest.setStatus(String.valueOf(RequestStatus.PENDING));
+
         if (!event.getRequestModeration()) {
-            addingRequest.setStatus(String.valueOf(RequestStatus.ACCEPTED));
+            addingRequest.setStatus(String.valueOf(RequestStatus.CONFIRMED));
         }
 
-        addingRequest.setStatus(String.valueOf(RequestStatus.PENDING));
+        if (event.getParticipantLimit() == 0) {
+            addingRequest.setStatus(String.valueOf(RequestStatus.CONFIRMED));
+        }
 
         return RequestMapper.mapToRequestDto(requestRepository.save(addingRequest));
     }
@@ -85,12 +90,13 @@ public class RequestServiceImp implements RequestService {
 
     private void checkParticipantsLimit(Event event) {
         long requestAmountForEvent = requestRepository.countByEventIdAndStatus(event.getId(),
-                String.valueOf(RequestStatus.ACCEPTED));
+                String.valueOf(RequestStatus.CONFIRMED));
 
-        if (event.getParticipantLimit() < (requestAmountForEvent + 1)) {
+        if ((event.getParticipantLimit() != 0)
+                && (event.getParticipantLimit() < (requestAmountForEvent + 1))) {
             log.warn("Unable to add request. ParticipantLimit {} less then request amount {}",
                     event.getParticipantLimit(), (requestAmountForEvent + 1));
-            throw new ConflictException("Exceeded requesters amount");
+            throw new ConflictException("Exceeded max requesters amount");
         }
     }
 
@@ -99,7 +105,7 @@ public class RequestServiceImp implements RequestService {
 
         if (request.isEmpty()) {
             log.warn("Attempt to get unknown event");
-            throw new NotFoundException("Request with id = " + request + "was not found");
+            throw new NotFoundException("Request with id = " + request + " was not found");
         }
         return request.get();
     }
@@ -109,7 +115,7 @@ public class RequestServiceImp implements RequestService {
 
         if (event.isEmpty()) {
             log.warn("Attempt to get unknown event");
-            throw new NotFoundException("Event with id = " + eventId + "was not found");
+            throw new NotFoundException("Event with id = " + eventId + " was not found");
         }
         return event.get();
     }
@@ -148,8 +154,8 @@ public class RequestServiceImp implements RequestService {
 
             if (list.get(mid).getRequester().getId().equals(requesterTargetId)) {
                 if (list.get(mid).getEvent().getId().equals(eventTargetId)) {
-                    log.warn("Request is duplicate");
-                    throw new ConflictException("Request is duplicate");
+                    log.warn("Request with id: {} is duplicate", requesterTargetId);
+                    throw new ConflictException("Request with id = " + requesterTargetId + " is duplicate");
                 } else {
                     if (list.get(mid).getEvent().getId() < eventTargetId) {
                         low = mid + 1;

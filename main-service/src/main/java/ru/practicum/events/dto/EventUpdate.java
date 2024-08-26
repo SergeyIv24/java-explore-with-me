@@ -21,7 +21,7 @@ public class EventUpdate {
 
     private Integer category;
 
-    @Length(min = 20)
+    @Length(min = 20, max = 7000)
     private String description;
 
     private Long initiator;

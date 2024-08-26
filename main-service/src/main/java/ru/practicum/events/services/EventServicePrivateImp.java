@@ -70,10 +70,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
         addingEvent.setState(String.valueOf(EventStates.PENDING));
 
         Event saved = eventRepository.save(addingEvent);
-        EventRequest added = EventMapper.mapToEventRequest(saved);
 
-        //return EventMapper.mapToEventRequest(eventRepository.save(addingEvent));
-        return added;
+        return EventMapper.mapToEventRequest(saved);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Long> eventIds = events.stream().map(EventRespShort::getId).toList();
 
         List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventIds,
-                String.valueOf(RequestStatus.ACCEPTED));
+                String.valueOf(RequestStatus.CONFIRMED));
 
         if (confirmedRequests.isEmpty()) {
             return events;
@@ -106,7 +104,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
     public EventRespFull getUsersFullEventById(long userId, long eventId) {
         Event event = validateAndGetEvent(eventId);
         long confirmedRequests = requestRepository
-                .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.ACCEPTED));
+                .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.CONFIRMED));
         EventRespFull eventRespFull = EventMapper.mapToEventRespFull(event);
         eventRespFull.setConfirmedRequests(confirmedRequests);
         return eventRespFull;
@@ -158,7 +156,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Requests> requestsToCancel = requests.subList((freeSlots + 1), (requests.size() - 1));
 
         for (Requests requestToApprove : requestsToApprove) {
-            requestToApprove.setStatus(String.valueOf(RequestStatus.ACCEPTED));
+            requestToApprove.setStatus(String.valueOf(RequestStatus.CONFIRMED));
         }
 
         for (Requests requestToCancel : requestsToCancel) {
@@ -174,7 +172,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
 
     private int countParticipants(long eventId) {
         return requestRepository.countByEventIdAndStatus(eventId,
-                String.valueOf(RequestStatus.ACCEPTED));
+                String.valueOf(RequestStatus.CONFIRMED));
     }
 
     private void checkParticipantsLimit(long participantsLimit, long participants) {

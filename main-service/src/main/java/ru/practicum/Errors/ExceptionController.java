@@ -1,4 +1,3 @@
-/*
 package ru.practicum.Errors;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -51,4 +50,3 @@ public class ExceptionController {
         return LocalDateTime.now().format(GeneralConstants.DATE_FORMATTER);
     }
 }
-*/

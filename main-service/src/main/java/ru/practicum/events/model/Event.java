@@ -39,7 +39,7 @@ public class Event {
     private LocalDateTime createdOn;
 
     @NotBlank(message = "empty description")
-    @Length(min = 20)
+    @Length(min = 20, max = 7000)
     private String description;
 
     @Column(name = "event_date")
@@ -63,7 +63,7 @@ public class Event {
     private Integer participantLimit;
 
     @Column(name = "published_on")
-    @FutureOrPresent(message = "publishedOn must not be in past")
+    //@FutureOrPresent(message = "publishedOn must not be in past")
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")

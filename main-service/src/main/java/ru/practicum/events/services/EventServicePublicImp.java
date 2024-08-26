@@ -73,7 +73,7 @@ public class EventServicePublicImp implements EventsServicePublic {
 
 
         List<Long> confirmedRequests = requestRepository.countByEventIdInAndStatusGroupByEvent(eventsIds,
-                String.valueOf(RequestStatus.ACCEPTED));
+                String.valueOf(RequestStatus.CONFIRMED));
 
         if (confirmedRequests.isEmpty()) {
             return events;
@@ -96,7 +96,7 @@ public class EventServicePublicImp implements EventsServicePublic {
                 });
 
         long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId,
-                String.valueOf(RequestStatus.ACCEPTED));
+                String.valueOf(RequestStatus.CONFIRMED));
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);

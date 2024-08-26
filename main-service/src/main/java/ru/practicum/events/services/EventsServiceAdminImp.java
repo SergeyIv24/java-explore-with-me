@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
 import ru.practicum.common.GeneralConstants;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
+import ru.practicum.events.EventStates;
 import ru.practicum.events.LocationRepository;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventUpdate;
@@ -40,15 +42,22 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
 
         Event updatingEvent = validateAndGetEvent(eventId);
 
+        checkAbilityToUpdate(updatingEvent);
+
         Category category = updatingEvent.getCategory();
+
         if (eventUpdate.getCategory() != null) {
             category = validateAndGetCategory(eventUpdate.getCategory());
+        }
+
+        if (eventUpdate.getLocation() != null) {
+            addLocation(eventUpdate.getLocation());
         }
 
         Event updatedEvent = eventRepository.save(EventMapper
                 .updateEvent(updatingEvent, eventUpdate, category));
         long confirmedRequests = requestRepository
-                .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.ACCEPTED));
+                .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.CONFIRMED));
         EventRespFull eventFull = EventMapper.mapToEventRespFull(updatedEvent);
         eventFull.setConfirmedRequests(confirmedRequests);
         return eventFull;
@@ -109,5 +118,20 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
             throw new NotFoundException("Category with id = " + categoryId + " was not found");
         }
         return category.get();
+    }
+
+    private void checkAbilityToUpdate(Event event) {
+
+        if (event.getState().equals(String.valueOf(EventStates.PUBLISHED))
+                || event.getState().equals(String.valueOf(EventStates.CANCELED))) {
+            log.warn("Update is prohibited. event stat: {}", event.getState());
+            throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
+        }
+
+/*        if (!(event.getState().equals(String.valueOf(EventStates.PENDING)))
+                && (event.getState().equals(String.valueOf(EventStates.CANCELED)))) {
+            log.warn("Update is prohibited. event stat: {}", event.getState());
+            throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
+        }*/
     }
 }
