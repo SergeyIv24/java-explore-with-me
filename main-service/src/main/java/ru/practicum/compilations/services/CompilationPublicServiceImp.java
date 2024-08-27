@@ -72,7 +72,11 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
                 eventShortListByCompId.put(eventByCompId.getCompilationId(), events);
                 continue;
             }
-            eventShortListByCompId.get(eventByCompId.getCompilationId()).add(EventMapper.mapToEventRespShort(eventByCompId.getEvent()));
+            if (eventByCompId.getEvent() == null) {
+                continue;
+            }
+            eventShortListByCompId.get(eventByCompId.getCompilationId())
+                    .add(EventMapper.mapToEventRespShort(eventByCompId.getEvent()));
         }
 
         List<CompilationResponse> compilationResponses = new ArrayList<>();

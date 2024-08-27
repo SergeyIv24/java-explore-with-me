@@ -169,12 +169,6 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Requests> requests = requestRepository
                 .findByIdInAndEventId(requestsForConfirmation.getRequestIds(), eventId); //Updating requests for event
 
-/*        if (requestsForConfirmation.getStatus().equals(String.valueOf(RequestStatus.REJECTED))) {
-            return requestRepository.saveAll(setStatusToRequests(RequestStatus.REJECTED, requests))
-                    .stream()
-                    .map(RequestMapper::mapToRequestDto)
-                    .collect(Collectors.toList());
-        }*/
         checkRequestStatus(requests); //Checking request`s status cause all requests should be PENDING  either CONFLICT
 
         int participants = countParticipants(eventId); //Approved participants
@@ -228,20 +222,18 @@ public class EventServicePrivateImp implements EventServicePrivate {
 
     //Two pointers to checking request`s status
     private void checkRequestStatus(List<Requests> request) {
-
         int leftIdx = 0;
         int rightIdx = request.size() - 1;
-
         while (leftIdx <= rightIdx) {
 
             if (!request.get(leftIdx).getStatus().equals(RequestStatus.PENDING.name())) {
-                log.warn("Bad status"); //todo
+                log.warn("Status must be PENDING");
                 throw new ConflictException("Request with id = " + request.get(leftIdx).getId() + " has status: "
                         + request.get(leftIdx).getStatus());
             }
 
             if (!request.get(rightIdx).getStatus().equals(RequestStatus.PENDING.name())) {
-                log.warn("Bad status");
+                log.warn("Status must be PENDING");
                 throw new ConflictException("Request with id = " + request.get(rightIdx).getId() + " has status: "
                         + request.get(rightIdx).getStatus());
             }
