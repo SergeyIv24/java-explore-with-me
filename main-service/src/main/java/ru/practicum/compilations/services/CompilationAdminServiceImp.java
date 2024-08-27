@@ -7,6 +7,7 @@ import ru.practicum.Errors.NotFoundException;
 import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.dto.CompilationRequest;
 import ru.practicum.compilations.dto.CompilationResponse;
+import ru.practicum.compilations.dto.CompilationUpdate;
 import ru.practicum.compilations.model.Compilation;
 import ru.practicum.compilations.model.CompositeKeyForEventByComp;
 import ru.practicum.compilations.model.EventsByCompilation;
@@ -41,6 +42,10 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
 
         int compilationId = savedCompilation.getId(); //returned compilation_id
 
+        if (compilationRequest.getEvents() == null) {
+            return CompilationMapper.mapToCompilationResponse(savedCompilation, List.of());
+        }
+
         //Prepare List<EventsByCompilation> to add in events_by_compilations
         List<EventsByCompilation> eventsByCompilations = compilationRequest.getEvents()
                 .stream()
@@ -65,20 +70,20 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     }
 
     @Override
-    public CompilationResponse updateCompilation(int id, CompilationRequest compilationRequest) {
+    public CompilationResponse updateCompilation(int id, CompilationUpdate compilationUpdate) {
         Compilation updatingCompilation = validateAndGetCompilation(id);
 
         Compilation updatedCompilation = compilationRepository
                 .save(CompilationMapper
-                .updateCompilation(updatingCompilation, CompilationMapper.mapToCompilation(compilationRequest)));
+                .updateCompilation(updatingCompilation, CompilationMapper.mapToCompilation(compilationUpdate)));
 
-        if (compilationRequest.getEvents() == null) {
+        if (compilationUpdate.getEvents() == null) {
             return CompilationMapper.mapToCompilationResponse(updatedCompilation, List.of());
         }
 
         deleteEventsByCompilations(id);
 
-        List<EventsByCompilation> updatedEventsByComp = compilationRequest
+        List<EventsByCompilation> updatedEventsByComp = compilationUpdate
                 .getEvents()
                 .stream()
                 .map((EbCId) -> EventsByCompilation
@@ -92,7 +97,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
                 .toList();
         eventByCompilationRepository.saveAll(updatedEventsByComp);
 
-        List<EventRespShort> events = eventRepository.findByIdIn(compilationRequest.getEvents())
+        List<EventRespShort> events = eventRepository.findByIdIn(compilationUpdate.getEvents())
                 .stream()
                 .map(EventMapper::mapToEventRespShort)
                 .toList();

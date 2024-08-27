@@ -169,19 +169,19 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Requests> requests = requestRepository
                 .findByIdInAndEventId(requestsForConfirmation.getRequestIds(), eventId); //Updating requests for event
 
-        if (requestsForConfirmation.getStatus().equals(String.valueOf(RequestStatus.REJECTED))) {
+/*        if (requestsForConfirmation.getStatus().equals(String.valueOf(RequestStatus.REJECTED))) {
             return requestRepository.saveAll(setStatusToRequests(RequestStatus.REJECTED, requests))
                     .stream()
                     .map(RequestMapper::mapToRequestDto)
                     .collect(Collectors.toList());
-        }
-
+        }*/
+        checkRequestStatus(requests); //Checking request`s status cause all requests should be PENDING  either CONFLICT
 
         int participants = countParticipants(eventId); //Approved participants
         checkParticipantsLimit(event.getParticipantLimit(), participants); //Check possibility to add
         int freeSlots = event.getParticipantLimit() - participants; //Amount participants who can be added
 
-        checkRequestStatus(requests); //Checking request`s status cause all requests should be PENDING  either CONFLICT
+
 
         if (freeSlots >= requests.size()) {
             return requestRepository.saveAll(setStatusToRequests(RequestStatus.CONFIRMED, requests))
@@ -232,7 +232,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         int leftIdx = 0;
         int rightIdx = request.size() - 1;
 
-        while (leftIdx < rightIdx) {
+        while (leftIdx <= rightIdx) {
 
             if (!request.get(leftIdx).getStatus().equals(RequestStatus.PENDING.name())) {
                 log.warn("Bad status"); //todo

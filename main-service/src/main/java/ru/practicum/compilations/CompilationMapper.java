@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.compilations.dto.CompilationRequest;
 import ru.practicum.compilations.dto.CompilationResponse;
+import ru.practicum.compilations.dto.CompilationUpdate;
 import ru.practicum.compilations.model.Compilation;
 import ru.practicum.events.dto.EventRespShort;
 
@@ -17,6 +18,14 @@ public class CompilationMapper {
                 .id(compilationRequest.getId())
                 .title(compilationRequest.getTitle())
                 .pinned(compilationRequest.getPinned())
+                .build();
+    }
+
+    public static Compilation mapToCompilation(CompilationUpdate compilationUpdate) {
+        return Compilation.builder()
+                .id(compilationUpdate.getId())
+                .title(compilationUpdate.getTitle())
+                .pinned(compilationUpdate.getPinned())
                 .build();
     }
 
