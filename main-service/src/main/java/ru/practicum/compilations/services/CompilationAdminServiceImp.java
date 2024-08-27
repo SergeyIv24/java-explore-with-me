@@ -65,19 +65,60 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     }
 
     @Override
-    public void deleteCompilation(int id) {
-        validateCompilation(id);
-        compilationRepository.deleteById(id);
+    public CompilationResponse updateCompilation(int id, CompilationRequest compilationRequest) {
+        Compilation updatingCompilation = validateAndGetCompilation(id);
 
+        Compilation updatedCompilation = compilationRepository
+                .save(CompilationMapper
+                .updateCompilation(updatingCompilation, CompilationMapper.mapToCompilation(compilationRequest)));
+
+        if (compilationRequest.getEvents() == null) {
+            return CompilationMapper.mapToCompilationResponse(updatedCompilation, List.of());
+        }
+
+        deleteEventsByCompilations(id);
+
+        List<EventsByCompilation> updatedEventsByComp = compilationRequest
+                .getEvents()
+                .stream()
+                .map((EbCId) -> EventsByCompilation
+                        .builder()
+                        .compositeKey(CompositeKeyForEventByComp
+                                .builder()
+                                .compilationId(id)
+                                .eventId(EbCId)
+                                .build())
+                        .build())
+                .toList();
+        eventByCompilationRepository.saveAll(updatedEventsByComp);
+
+        List<EventRespShort> events = eventRepository.findByIdIn(compilationRequest.getEvents())
+                .stream()
+                .map(EventMapper::mapToEventRespShort)
+                .toList();
+
+        return CompilationMapper.mapToCompilationResponse(updatedCompilation, events);
+
+    }
+
+    @Override
+    public void deleteCompilation(int id) {
+        validateAndGetCompilation(id);
+        compilationRepository.deleteById(id);
+        deleteEventsByCompilations(id);
+    }
+
+    private void deleteEventsByCompilations(int id) {
         if (!eventByCompilationRepository.findByCompilationId(id).isEmpty()) {
             eventByCompilationRepository.deleteByCompilationId(id);
         }
     }
 
-    private void validateCompilation(int id) {
+    private Compilation validateAndGetCompilation(int id) {
         if (!compilationRepository.existsById(id)) {
             log.warn("Compilation with: {} was not found", id);
             throw new NotFoundException("Compilation with = " + id + " was not found");
         }
+        return compilationRepository.findById(id).get();
     }
 }

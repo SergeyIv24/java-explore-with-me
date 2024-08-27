@@ -10,7 +10,6 @@ import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.dto.CompilationResponse;
 import ru.practicum.compilations.dto.EventByCompId;
 import ru.practicum.compilations.model.Compilation;
-import ru.practicum.compilations.model.EventsByCompilation;
 import ru.practicum.compilations.repository.CompilationRepository;
 import ru.practicum.compilations.repository.EventByCompilationRepository;
 import ru.practicum.events.EventMapper;
@@ -22,7 +21,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @RequiredArgsConstructor

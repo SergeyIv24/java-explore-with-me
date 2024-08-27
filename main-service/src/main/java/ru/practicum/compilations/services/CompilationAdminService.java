@@ -8,7 +8,7 @@ public interface CompilationAdminService {
 
     CompilationResponse addCompilation(CompilationRequest compilationRequest);
 
-
+    CompilationResponse updateCompilation(int id, CompilationRequest compilationRequest);
     void deleteCompilation(int id);
 
 

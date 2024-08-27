@@ -14,12 +14,12 @@ public class CompilationRequest {
 
     private Integer id;
 
-    @NotBlank(message = "Empty title")
+    //@NotBlank(message = "Empty title")
     @Length(max = 50)
     private String title;
 
     private Boolean pinned;
 
-    @NotNull(message = "Events list must be existed")
+    //@NotNull(message = "Events list must be existed")
     private List<Long> events;
 }

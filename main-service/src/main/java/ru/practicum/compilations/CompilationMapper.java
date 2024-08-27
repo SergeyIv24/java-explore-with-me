@@ -30,5 +30,13 @@ public class CompilationMapper {
                 .build();
     }
 
-
+    public static Compilation updateCompilation(Compilation updatingCompilation, Compilation newCompilation) {
+        if (newCompilation.getTitle() != null) {
+            updatingCompilation.setTitle(newCompilation.getTitle());
+        }
+        if (newCompilation.getPinned() != null) {
+            updatingCompilation.setPinned(newCompilation.getPinned());
+        }
+        return updatingCompilation;
+    }
 }

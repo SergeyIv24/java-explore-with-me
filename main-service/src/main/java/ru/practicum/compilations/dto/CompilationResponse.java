@@ -22,7 +22,7 @@ public class CompilationResponse {
     @NotNull(message = "Pinned must not be null")
     private Boolean pinned;
 
-    @NotNull(message = "Events list must be existed")
+    //@NotNull(message = "Events list must be existed")
     private List<EventRespShort> events;
 
 }

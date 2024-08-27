@@ -30,7 +30,7 @@ public class CompilationAdminController {
                                                  @Valid @RequestBody CompilationRequest compilationRequest) {
         log.info("CompilationAdminController, updateCompilation, compId: {}, compilationRequest: {}",
                 id, compilationRequest);
-        return null;
+        return compilationService.updateCompilation(id, compilationRequest);
     }
 
 
