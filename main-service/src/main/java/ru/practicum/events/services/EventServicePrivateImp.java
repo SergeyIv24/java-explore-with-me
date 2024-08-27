@@ -28,6 +28,7 @@ import ru.practicum.requests.RequestRepository;
 import ru.practicum.requests.RequestStatus;
 import ru.practicum.requests.dto.EventIdByRequestsCount;
 import ru.practicum.requests.dto.RequestDto;
+import ru.practicum.requests.dto.RequestResponse;
 import ru.practicum.requests.dto.RequestsForConfirmation;
 import ru.practicum.requests.model.Requests;
 import ru.practicum.statistic.StatisticClient;
@@ -161,9 +162,9 @@ public class EventServicePrivateImp implements EventServicePrivate {
     }
 
     @Override
-    public Collection<RequestDto> approveRequests(RequestsForConfirmation requestsForConfirmation,
-                                                  long userId,
-                                                  long eventId) {
+    public RequestResponse approveRequests(RequestsForConfirmation requestsForConfirmation,
+                                           long userId,
+                                           long eventId) {
         Event event = validateAndGetEvent(eventId); //checking event availability
 
         List<Requests> requests = requestRepository
@@ -175,23 +176,47 @@ public class EventServicePrivateImp implements EventServicePrivate {
         checkParticipantsLimit(event.getParticipantLimit(), participants); //Check possibility to add
         int freeSlots = event.getParticipantLimit() - participants; //Amount participants who can be added
 
-
-
         if (freeSlots >= requests.size()) {
-            return requestRepository.saveAll(setStatusToRequests(RequestStatus.CONFIRMED, requests))
+
+            List<RequestDto> approvedRequest = requestRepository.saveAll(setStatusToRequests(RequestStatus
+                    .valueOf(requestsForConfirmation.getStatus()), requests))
                     .stream()
                     .map(RequestMapper::mapToRequestDto)
-                    .collect(Collectors.toList());
+                    .toList();
+
+            RequestResponse response = RequestResponse.builder().build();
+
+            if (requestsForConfirmation.getStatus().equals(String.valueOf(RequestStatus.REJECTED))) {
+                response.setRejectedRequests(approvedRequest);
+                response.setConfirmedRequests(List.of());
+            } else {
+                response.setRejectedRequests(List.of());
+                response.setConfirmedRequests(approvedRequest);
+            }
+            return response;
         }
 
         List<Requests> requestsToCancel = setStatusToRequests(RequestStatus.REJECTED,
                 requests.subList(freeSlots, requests.size()));
-
         requestRepository.saveAll(requestsToCancel);
-        return requestRepository.saveAll(setStatusToRequests(RequestStatus.CONFIRMED, requests.subList(0, freeSlots)))
+
+        List<RequestDto> confirmed = requestRepository.saveAll(setStatusToRequests(RequestStatus
+                        .valueOf(requestsForConfirmation.getStatus()), requests.subList(0, freeSlots)))
                 .stream()
                 .map(RequestMapper::mapToRequestDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        List<RequestDto> rejected = requestRepository.saveAll(setStatusToRequests(RequestStatus.REJECTED,
+                requests.subList(freeSlots, requests.size())))
+                .stream()
+                .map(RequestMapper::mapToRequestDto)
+                .toList();
+
+        return RequestResponse
+                .builder()
+                .confirmedRequests(confirmed)
+                .rejectedRequests(rejected)
+                .build();
     }
 
     private List<Requests> setStatusToRequests(RequestStatus status, List<Requests> requests) {

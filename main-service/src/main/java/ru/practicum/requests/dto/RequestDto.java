@@ -26,6 +26,4 @@ public class RequestDto {
     private Long requester;
 
     private String status;
-
-
 }

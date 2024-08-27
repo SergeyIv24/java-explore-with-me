@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class RequestsForConfirmation {
-    private List<Long> requestIds;
-    private String status;
+public class RequestResponse {
+    private List<RequestDto> confirmedRequests;
+    private List<RequestDto> rejectedRequests;
 }

@@ -12,6 +12,7 @@ import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespShort;
 import ru.practicum.requests.dto.RequestDto;
+import ru.practicum.requests.dto.RequestResponse;
 import ru.practicum.requests.dto.RequestsForConfirmation;
 
 import java.util.Collection;
@@ -71,9 +72,9 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<RequestDto> approveRequest(@RequestBody RequestsForConfirmation requestsForConfirmation,
-                                                 @PathVariable(value = "userId") long userId,
-                                                 @PathVariable(value = "eventId") long eventId) {
+    public RequestResponse approveRequest(@RequestBody RequestsForConfirmation requestsForConfirmation,
+                                          @PathVariable(value = "userId") long userId,
+                                          @PathVariable(value = "eventId") long eventId) {
         log.info("EventPrivateController, approveRequest. UserId: {}, eventId: {}", userId, eventId);
         return eventService.approveRequests(requestsForConfirmation, userId, eventId);
     }
