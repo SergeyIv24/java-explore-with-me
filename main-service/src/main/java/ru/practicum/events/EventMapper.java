@@ -131,13 +131,15 @@ public class EventMapper {
                 updatingEvent.setPublishedOn(LocalDateTime.now());
             }
 
-            if (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.REJECT_EVENT))) {
+            if ((eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.REJECT_EVENT)))
+                    || (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.CANCEL_REVIEW)))) {
                 updatingEvent.setState(String.valueOf(EventStates.CANCELED));
             }
 
             if (eventUpdate.getStateAction().equals(String.valueOf(EventStateAction.SEND_TO_REVIEW))) {
                 updatingEvent.setState(String.valueOf(EventStates.PENDING));
             }
+
         }
         return updatingEvent;
     }

@@ -68,15 +68,16 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     public void deleteCompilation(int id) {
         validateCompilation(id);
         compilationRepository.deleteById(id);
+
+        if (!eventByCompilationRepository.findByCompilationId(id).isEmpty()) {
+            eventByCompilationRepository.deleteByCompilationId(id);
+        }
     }
 
     private void validateCompilation(int id) {
-
         if (!compilationRepository.existsById(id)) {
             log.warn("Compilation with: {} was not found", id);
             throw new NotFoundException("Compilation with = " + id + " was not found");
         }
     }
-
-
 }

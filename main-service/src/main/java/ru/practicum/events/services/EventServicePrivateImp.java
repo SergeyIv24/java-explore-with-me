@@ -113,7 +113,6 @@ public class EventServicePrivateImp implements EventServicePrivate {
                     .setConfirmedRequests(confirmedRequestsByEvents
                             .getOrDefault(events.get(i).getId(), 0L));
         }
-
         return events;
     }
 
@@ -166,30 +165,46 @@ public class EventServicePrivateImp implements EventServicePrivate {
                                                   long userId,
                                                   long eventId) {
         Event event = validateAndGetEvent(eventId); //checking event availability
+
+        List<Requests> requests = requestRepository
+                .findByIdInAndEventId(requestsForConfirmation.getRequestIds(), eventId); //Updating requests for event
+
+        if (requestsForConfirmation.getStatus().equals(String.valueOf(RequestStatus.REJECTED))) {
+            return requestRepository.saveAll(setStatusToRequests(RequestStatus.REJECTED, requests))
+                    .stream()
+                    .map(RequestMapper::mapToRequestDto)
+                    .collect(Collectors.toList());
+        }
+
+
         int participants = countParticipants(eventId); //Approved participants
         checkParticipantsLimit(event.getParticipantLimit(), participants); //Check possibility to add
         int freeSlots = event.getParticipantLimit() - participants; //Amount participants who can be added
-        List<Requests> requests = requestRepository
-                .findByIdInAndEventId(requestsForConfirmation.getRequestIds(), eventId); //Updating requests for event
+
         checkRequestStatus(requests); //Checking request`s status cause all requests should be PENDING  either CONFLICT
 
-        List<Requests> requestsToApprove = requests.subList(0, (freeSlots + 1));
-
-        List<Requests> requestsToCancel = requests.subList((freeSlots + 1), (requests.size() - 1));
-
-        for (Requests requestToApprove : requestsToApprove) {
-            requestToApprove.setStatus(String.valueOf(RequestStatus.CONFIRMED));
+        if (freeSlots >= requests.size()) {
+            return requestRepository.saveAll(setStatusToRequests(RequestStatus.CONFIRMED, requests))
+                    .stream()
+                    .map(RequestMapper::mapToRequestDto)
+                    .collect(Collectors.toList());
         }
 
-        for (Requests requestToCancel : requestsToCancel) {
-            requestToCancel.setStatus(String.valueOf(RequestStatus.CANCELED));
-        }
+        List<Requests> requestsToCancel = setStatusToRequests(RequestStatus.REJECTED,
+                requests.subList(freeSlots, requests.size()));
 
         requestRepository.saveAll(requestsToCancel);
-        return requestRepository.saveAll(requestsToApprove)
+        return requestRepository.saveAll(setStatusToRequests(RequestStatus.CONFIRMED, requests.subList(0, freeSlots)))
                 .stream()
                 .map(RequestMapper::mapToRequestDto)
                 .collect(Collectors.toList());
+    }
+
+    private List<Requests> setStatusToRequests(RequestStatus status, List<Requests> requests) {
+        for (Requests requestToApprove : requests) {
+            requestToApprove.setStatus(String.valueOf(status));
+        }
+        return requests;
     }
 
     private String prepareUris(List<Long> ids) {
@@ -204,7 +219,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
     }
 
     private void checkParticipantsLimit(long participantsLimit, long participants) {
-        if (participantsLimit <= (participants + 1)) {
+        if (participantsLimit < (participants + 1)) {
             log.warn("Unable to add request. ParticipantLimit {} less then request amount {}",
                     participantsLimit, (participants + 1));
             throw new ConflictException("Exceeded requesters amount");

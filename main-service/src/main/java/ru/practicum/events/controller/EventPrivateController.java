@@ -1,6 +1,5 @@
 package ru.practicum.events.controller;
 
-import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,8 @@ public class EventPrivateController {
     public EventRequest updateUsersEvent(@PathVariable(value = "userId") long userId,
                                          @PathVariable(value = "eventId") long eventId,
                                          @Valid @RequestBody EventUpdate eventUpdate) {
-        log.info("EventPrivateController, updateUsersEvent. UserId: {}, eventId: {}", userId, eventId);
+        log.info("EventPrivateController, updateUsersEvent. UserId: {}, eventId: {}, eventUpdate: {}",
+                userId, eventId, eventUpdate);
         return eventService.updateUsersEvent(userId, eventId, eventUpdate);
     }
 

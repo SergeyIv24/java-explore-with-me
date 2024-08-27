@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum EventStateAction {
     PUBLISH_EVENT(1),
     REJECT_EVENT(2),
-    SEND_TO_REVIEW(3);
+    SEND_TO_REVIEW(3),
+    CANCEL_REVIEW(4);
 
 
     private final int stateAction;

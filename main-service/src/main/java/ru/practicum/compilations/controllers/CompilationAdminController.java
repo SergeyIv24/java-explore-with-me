@@ -38,7 +38,7 @@ public class CompilationAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable("id") int id) {
         log.info("CompilationAdminController, deleteCompilation, id: {}", id);
-
+        compilationService.deleteCompilation(id);
     }
 
 

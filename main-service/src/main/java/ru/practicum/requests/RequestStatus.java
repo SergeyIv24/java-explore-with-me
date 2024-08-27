@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum RequestStatus {
     PENDING(1),
     CONFIRMED(2),
-    CANCELED(3);
+    REJECTED(3),
+    CANCELED(4);
 
     private final int requestStatus;
 
