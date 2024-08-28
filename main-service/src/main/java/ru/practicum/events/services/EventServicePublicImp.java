@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.Errors.ValidationException;
-import ru.practicum.GeneralConstants;
+
+import ru.practicum.common.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;

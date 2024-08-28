@@ -47,6 +47,4 @@ public class EventAdminController {
                 categories, rangeStart, rangeEnd, from, size);
         return eventService.getEventsByConditionalsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
-
-
 }

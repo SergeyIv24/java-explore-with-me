@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
-import ru.practicum.GeneralConstants;
+
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.common.ConnectToStatServer;
+import ru.practicum.common.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
@@ -68,11 +70,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
         }
 
         validateEventDate(eventRequest.getEventDate());
-
         addLocation(eventRequest.getLocation()); //Adding locations to database because location is separated entity
-
         Event addingEvent = EventMapper.mapToEvent(eventRequest);
-
         addingEvent.setInitiator(validateAndGetUser(userId));
         addingEvent.setCategory(validateAndGetCategory(eventRequest.getCategory()));
         addingEvent.setCreatedOn(LocalDateTime.now());
@@ -100,8 +99,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 .stream()
                 .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
-                prepareUris(eventIds), true);
+        List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
+                ConnectToStatServer.prepareUris(eventIds), true, statisticClient);
 
         for (int i = 0; i < events.size(); i++) {
 
@@ -124,7 +123,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 .countByEventIdAndStatus(eventId, String.valueOf(RequestStatus.CONFIRMED));
         EventRespFull eventRespFull = EventMapper.mapToEventRespFull(event);
         eventRespFull.setConfirmedRequests(confirmedRequests);
-        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime, path, true);
+        List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime,
+                GeneralConstants.defaultEndTime, path, true, statisticClient);
         if (views.isEmpty()) {
             eventRespFull.setViews(0L);
             return eventRespFull;
@@ -228,11 +228,11 @@ public class EventServicePrivateImp implements EventServicePrivate {
         return requests;
     }
 
-    private String prepareUris(List<Long> ids) {
+/*    private String prepareUris(List<Long> ids) {
         return ids
                 .stream()
                 .map((id) -> "event/" + id).collect(Collectors.joining());
-    }
+    }*/
 
     private int countParticipants(long eventId) {
         return requestRepository.countByEventIdAndStatus(eventId,
@@ -318,7 +318,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         }
     }
 
-    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
+/*    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
         ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
 
 
@@ -343,5 +343,5 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 .stream()
                 .map(StatisticResponse::getHits)
                 .collect(Collectors.toList());
-    }
+    }*/
 }

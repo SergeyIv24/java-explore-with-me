@@ -10,9 +10,10 @@ import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.Errors.ValidationException;
-import ru.practicum.GeneralConstants;
+
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.common.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
@@ -94,7 +95,7 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
             users = List.of();
         }
         if (rangeStart == null) {
-            rangeStart = ru.practicum.GeneralConstants.defaultStartTime;
+            rangeStart = GeneralConstants.defaultStartTime;
         }
         if (rangeEnd == null) {
             rangeEnd = GeneralConstants.defaultEndTime;
@@ -116,8 +117,8 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                 .stream()
                 .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        List<Long> views = getViews(ru.practicum.GeneralConstants.defaultStartTime,
-                ru.practicum.GeneralConstants.defaultEndTime,
+        List<Long> views = getViews(GeneralConstants.defaultStartTime,
+                GeneralConstants.defaultEndTime,
                 prepareUris(eventsIds), true);
 
         for (int i = 0; i < eventRespFulls.size(); i++) {
