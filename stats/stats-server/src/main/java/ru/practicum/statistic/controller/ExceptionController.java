@@ -29,6 +29,4 @@ public class ExceptionController {
     public ErrorMessage handlerMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         return new ErrorMessage("Bad input data", e.getMessage());
     }
-
-
 }

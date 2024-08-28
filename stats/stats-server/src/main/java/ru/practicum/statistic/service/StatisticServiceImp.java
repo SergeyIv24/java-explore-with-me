@@ -35,7 +35,7 @@ public class StatisticServiceImp implements StatisticService {
 
     @Override
     public List<StatisticResponse> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-
+        validateDates(start, end);
         if (unique) {
             if (uris == null) {
                 log.info("Finding stats for unique IP and for all URI");
