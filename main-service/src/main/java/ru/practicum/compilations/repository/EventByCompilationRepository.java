@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface EventByCompilationRepository extends JpaRepository<EventsByCompilation, CompositeKeyForEventByComp> {
 
-    @Query(value = "SELECT * " +
+    @Query(value = "SELECT event_id " +
             "FROM events_by_compilations " +
             "WHERE compilation_id = ?1 ",
             nativeQuery = true)

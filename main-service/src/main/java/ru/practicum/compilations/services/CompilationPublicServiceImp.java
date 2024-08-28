@@ -41,6 +41,7 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
                 .stream()
                 .map(EventMapper::mapToEventRespShort)
                 .toList();
+
         return CompilationMapper.mapToCompilationResponse(compilation, events);
     }
 
