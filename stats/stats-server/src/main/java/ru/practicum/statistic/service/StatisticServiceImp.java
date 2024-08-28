@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import ru.practicum.statistic.exceptions.NotFoundException;
+import ru.practicum.statistic.exceptions.ValidationException;
 import ru.practicum.statistic.mappers.StatisticMapper;
 import ru.practicum.statistic.model.App;
 import ru.practicum.statistic.model.Statistic;
@@ -76,5 +77,16 @@ public class StatisticServiceImp implements StatisticService {
             throw new NotFoundException("Bad required app name");
         }
         return app.get();
+    }
+
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            return;
+        }
+        if (start.isAfter(end)) {
+            log.warn("Start is after end");
+            throw new ValidationException("Start is after end");
+        }
+
     }
 }

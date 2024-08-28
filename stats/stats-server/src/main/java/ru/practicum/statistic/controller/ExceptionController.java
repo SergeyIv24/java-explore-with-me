@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.statistic.exceptions.ErrorMessage;
 import ru.practicum.statistic.exceptions.NotFoundException;
+import ru.practicum.statistic.exceptions.ValidationException;
 
 @RestControllerAdvice
 public class ExceptionController {
@@ -15,6 +16,12 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage handlerNotFoundException(final NotFoundException e) {
         return new ErrorMessage("Not found", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleValidationException(final ValidationException e) {
+        return new ErrorMessage("Validation exception", e.getMessage());
     }
 
     @ExceptionHandler
