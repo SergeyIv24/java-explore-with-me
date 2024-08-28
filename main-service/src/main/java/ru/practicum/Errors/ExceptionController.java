@@ -46,6 +46,14 @@ public class ExceptionController {
         return new ErrorMessage(HttpStatus.NOT_FOUND.getReasonPhrase(), reason, message, prepareResponseDate());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleValidationException(ValidationException e) {
+        String reason = "Incorrectly made request.";
+        String message = e.getMessage();
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.getReasonPhrase(), reason, message, prepareResponseDate());
+    }
+
     private String prepareResponseDate() {
         return LocalDateTime.now().format(GeneralConstants.DATE_FORMATTER);
     }

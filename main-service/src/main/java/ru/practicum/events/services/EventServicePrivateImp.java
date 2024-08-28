@@ -127,6 +127,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime, path, true);
         if (views.isEmpty()) {
             eventRespFull.setViews(0L);
+            return eventRespFull;
         }
         eventRespFull.setViews(views.get(0));
         return eventRespFull;
@@ -165,6 +166,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
     public RequestResponse approveRequests(RequestsForConfirmation requestsForConfirmation,
                                            long userId,
                                            long eventId) {
+        long start = System.currentTimeMillis();
+
         Event event = validateAndGetEvent(eventId); //checking event availability
 
         List<Requests> requests = requestRepository
@@ -193,6 +196,8 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 response.setRejectedRequests(List.of());
                 response.setConfirmedRequests(approvedRequest);
             }
+            long end = System.currentTimeMillis();
+            log.info("time approve: {}", (end - start));
             return response;
         }
 

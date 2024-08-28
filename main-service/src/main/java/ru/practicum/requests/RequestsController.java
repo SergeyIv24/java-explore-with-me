@@ -20,7 +20,7 @@ public class RequestsController {
     @ResponseStatus(HttpStatus.CREATED)
     public RequestDto addRequest(@RequestParam("eventId") Long eventId,
                                  @PathVariable("userId") long userId) {
-        log.info("RequestsController, addRequest. EventId: {}", eventId);
+        log.info("RequestsController, addRequest. EventId: {}, userId: {}", eventId, userId);
         return requestService.addRequest(eventId, userId);
     }
 

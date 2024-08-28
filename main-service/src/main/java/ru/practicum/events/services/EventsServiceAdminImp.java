@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
+import ru.practicum.Errors.ValidationException;
+import ru.practicum.GeneralConstants;
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
-import ru.practicum.common.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
@@ -78,6 +79,9 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                                                                      LocalDateTime rangeEnd,
                                                                      int from,
                                                                      int size) {
+        long startTime = System.currentTimeMillis();
+        validateDates(rangeStart, rangeEnd);
+
         int startPage = from > 0 ? (from / size) : 0;
         Pageable pageable = PageRequest.of(startPage, size);
 
@@ -91,10 +95,10 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
             users = List.of();
         }
         if (rangeStart == null) {
-            rangeStart = LocalDateTime.parse("1000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+            rangeStart = ru.practicum.GeneralConstants.defaultStartTime;
         }
         if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.parse("3000-12-12 12:12:12", GeneralConstants.DATE_FORMATTER);
+            rangeEnd = GeneralConstants.defaultEndTime;
         }
 
         List<EventRespFull> eventRespFulls = eventRepository
@@ -113,7 +117,8 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                 .stream()
                 .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        List<Long> views = getViews(ru.practicum.GeneralConstants.defaultStartTime, ru.practicum.GeneralConstants.defaultEndTime,
+        List<Long> views = getViews(ru.practicum.GeneralConstants.defaultStartTime,
+                ru.practicum.GeneralConstants.defaultEndTime,
                 prepareUris(eventsIds), true);
 
         for (int i = 0; i < eventRespFulls.size(); i++) {
@@ -127,6 +132,9 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                     .setConfirmedRequests(confirmedRequestsByEvents
                             .getOrDefault(eventRespFulls.get(i).getId(), 0L));
         }
+        long end = System.currentTimeMillis();
+        log.info("getEventsByConditionalsForAdmin, response: comfired {}", eventRespFulls.get(0).getConfirmedRequests());
+        log.info("time: {}", (end - startTime));
         return eventRespFulls;
     }
 
@@ -194,5 +202,15 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                 .stream()
                 .map(StatisticResponse::getHits)
                 .collect(Collectors.toList());
+    }
+
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            return;
+        }
+        if (start.isAfter(end)) {
+            log.warn("Prohibited. Start is after end. Start: {}, end: {}", start, end);
+            throw new ValidationException("Event must be published");
+        }
     }
 }

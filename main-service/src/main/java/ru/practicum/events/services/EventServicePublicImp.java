@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.NotFoundException;
+import ru.practicum.Errors.ValidationException;
 import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
@@ -30,20 +31,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventServicePublicImp implements EventsServicePublic {
 
-
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
     private final StatisticClient statisticClient;
-
-    private final LocalDateTime defaultStartTime = LocalDateTime.parse("1000-12-12 12:12:12",
-            GeneralConstants.DATE_FORMATTER);
-    private final LocalDateTime defaultEndTime = LocalDateTime.parse("3000-12-12 12:12:12",
-            GeneralConstants.DATE_FORMATTER);
 
     @Override
     public Collection<EventRespShort> searchEvents(String text, List<Integer> categories, Boolean paid,
                                                    LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                    boolean onlyAvailable, String sort, int from, int size) {
+        validateDates(rangeStart, rangeEnd);
         int startPage = from > 0 ? (from / size) : 0;
         Pageable pageable = PageRequest.of(startPage, size);
 
@@ -54,10 +50,10 @@ public class EventServicePublicImp implements EventsServicePublic {
             categories = List.of();
         }
         if (rangeStart == null) {
-            rangeStart = LocalDateTime.now().plusMinutes(1L);
+            rangeStart = LocalDateTime.now();
         }
         if (rangeEnd == null) {
-            rangeEnd = defaultEndTime;
+            rangeEnd = GeneralConstants.defaultEndTime;
         }
 
         List<EventRespShort> events = eventRepository
@@ -105,7 +101,8 @@ public class EventServicePublicImp implements EventsServicePublic {
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);
-        List<Long> views = getViews(defaultStartTime, defaultEndTime, path, true);
+        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime, path,
+                true);
         if (views.isEmpty()) {
             eventFull.setViews(0L);
         }
@@ -145,5 +142,13 @@ public class EventServicePublicImp implements EventsServicePublic {
                 .collect(Collectors.toList());
     }
 
-
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            return;
+        }
+        if (start.isAfter(end)) {
+            log.warn("Prohibited. Start is after end. Start: {}, end: {}", start, end);
+            throw new ValidationException("Event must be published");
+        }
+    }
 }

@@ -7,12 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import ru.practicum.GeneralConstants;
 import ru.practicum.dto.StatisticDto;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventRespShort;
 import ru.practicum.events.services.EventsServicePublic;
 import ru.practicum.statistic.StatisticClient;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -33,9 +36,9 @@ public class EventPublicController {
                                                    List<Integer> categories,
                                                    @RequestParam(value = "paid", required = false) Boolean paid,
                                                    @RequestParam(value = "rangeStart", required = false)
-                                                   LocalDateTime rangeStart,
+                                                   String rangeStart,
                                                    @RequestParam(value = "rangeEnd", required = false)
-                                                   LocalDateTime rangeEnd,
+                                                   String rangeEnd,
                                                    @RequestParam(value = "onlyAvailable", required = false,
                                                            defaultValue = "false") boolean onlyAvailable,
                                                    @RequestParam(value = "sort", required = false) String sort,
@@ -61,7 +64,10 @@ public class EventPublicController {
         log.info("EventPublicController, getEvent. Statistic was sent to stats-server, statisticDto: {}",
                 statisticDto);
 
-        return eventService.searchEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        LocalDateTime start = convertToLocalDataTime(decode(rangeStart));
+        LocalDateTime end = convertToLocalDataTime(decode(rangeEnd));
+
+        return eventService.searchEvents(text, categories, paid, start, end, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{id}")
@@ -103,5 +109,19 @@ public class EventPublicController {
             log.error("EventPublicController. Status code: {}, responseBody: {}", response.getStatusCode(),
                     response.getBody());
         }
+    }
+
+    private String decode(String parameter) {
+        if (parameter == null) {
+            return null;
+        }
+        return URLDecoder.decode(parameter, StandardCharsets.UTF_8);
+    }
+
+    private LocalDateTime convertToLocalDataTime(String date) {
+        if (date == null) {
+            return null;
+        }
+        return LocalDateTime.parse(date, GeneralConstants.DATE_FORMATTER);
     }
 }
