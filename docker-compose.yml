@@ -44,7 +44,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/mainDb
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
-
+      - STATS_SERVER_URL=http://stats-server:9090
   main-db:
     image: postgres:16.1
     container_name: mainDb
