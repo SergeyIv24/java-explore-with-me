@@ -75,7 +75,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
 
         Compilation updatedCompilation = compilationRepository
                 .save(CompilationMapper
-                .updateCompilation(updatingCompilation, CompilationMapper.mapToCompilation(compilationUpdate)));
+                        .updateCompilation(updatingCompilation, CompilationMapper.mapToCompilation(compilationUpdate)));
 
         if (compilationUpdate.getEvents() == null) {
             return CompilationMapper.mapToCompilationResponse(updatedCompilation, List.of());

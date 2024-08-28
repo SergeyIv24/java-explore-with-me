@@ -10,6 +10,7 @@ public interface CompilationAdminService {
     CompilationResponse addCompilation(CompilationRequest compilationRequest);
 
     CompilationResponse updateCompilation(int id, CompilationUpdate compilationUpdate);
+
     void deleteCompilation(int id);
 
 

@@ -57,7 +57,7 @@ public class EventServicePublicImp implements EventsServicePublic {
         }
 
         List<EventRespShort> events = eventRepository
-                .searchEvents(text,categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable)
+                .searchEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable)
                 .stream()
                 .map(EventMapper::mapToEventRespShort)
                 .toList();

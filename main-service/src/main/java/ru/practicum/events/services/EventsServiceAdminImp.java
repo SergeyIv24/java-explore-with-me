@@ -79,7 +79,6 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                                                                      LocalDateTime rangeEnd,
                                                                      int from,
                                                                      int size) {
-        long startTime = System.currentTimeMillis();
         validateDates(rangeStart, rangeEnd);
 
         int startPage = from > 0 ? (from / size) : 0;
@@ -132,9 +131,7 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                     .setConfirmedRequests(confirmedRequestsByEvents
                             .getOrDefault(eventRespFulls.get(i).getId(), 0L));
         }
-        long end = System.currentTimeMillis();
-        log.info("getEventsByConditionalsForAdmin, response: comfired {}", eventRespFulls.get(0).getConfirmedRequests());
-        log.info("time: {}", (end - startTime));
+        //log.info("getEventsByConditionalsForAdmin, response: comfired {}", eventRespFulls.get(0).getConfirmedRequests());
         return eventRespFulls;
     }
 

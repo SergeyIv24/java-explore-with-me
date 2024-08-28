@@ -18,7 +18,7 @@ public class Config {
     private String serverUri;
 
     @Bean
-    public StatisticClient StatisticClient() {
+    public StatisticClient statisticClient() {
         return new StatisticClient(serverUri, restTemplateBuilder);
     }
 

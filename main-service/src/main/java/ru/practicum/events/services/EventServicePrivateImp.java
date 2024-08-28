@@ -166,7 +166,6 @@ public class EventServicePrivateImp implements EventServicePrivate {
     public RequestResponse approveRequests(RequestsForConfirmation requestsForConfirmation,
                                            long userId,
                                            long eventId) {
-        long start = System.currentTimeMillis();
 
         Event event = validateAndGetEvent(eventId); //checking event availability
 
@@ -182,7 +181,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
         if (freeSlots >= requests.size()) {
 
             List<RequestDto> approvedRequest = requestRepository.saveAll(setStatusToRequests(RequestStatus
-                    .valueOf(requestsForConfirmation.getStatus()), requests))
+                            .valueOf(requestsForConfirmation.getStatus()), requests))
                     .stream()
                     .map(RequestMapper::mapToRequestDto)
                     .toList();
@@ -196,8 +195,6 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 response.setRejectedRequests(List.of());
                 response.setConfirmedRequests(approvedRequest);
             }
-            long end = System.currentTimeMillis();
-            log.info("time approve: {}", (end - start));
             return response;
         }
 
@@ -212,7 +209,7 @@ public class EventServicePrivateImp implements EventServicePrivate {
                 .toList();
 
         List<RequestDto> rejected = requestRepository.saveAll(setStatusToRequests(RequestStatus.REJECTED,
-                requests.subList(freeSlots, requests.size())))
+                        requests.subList(freeSlots, requests.size())))
                 .stream()
                 .map(RequestMapper::mapToRequestDto)
                 .toList();

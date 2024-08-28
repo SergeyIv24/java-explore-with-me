@@ -1,6 +1,5 @@
 package ru.practicum.events.services;
 
-import ru.practicum.events.dto.EventRequest;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventUpdate;
 

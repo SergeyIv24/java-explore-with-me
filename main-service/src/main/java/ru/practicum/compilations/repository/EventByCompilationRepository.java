@@ -19,12 +19,6 @@ public interface EventByCompilationRepository extends JpaRepository<EventsByComp
             nativeQuery = true)
     List<Long> findByCompilationId(int compilationId);
 
-/*    @Query(value = "SELECT * " +
-            "FROM events_by_compilations " +
-            "WHERE compilation_id = ?1 ",
-            nativeQuery = true)
-    List<EventsByCompilation> findFullByCompilationId(int compilationId);*/
-
     @Query(value = "select compilation_id, e.* " +
             "from events_by_compilations AS ebc " +
             "INNER JOIN events AS e on ebc.event_id = e.id " +

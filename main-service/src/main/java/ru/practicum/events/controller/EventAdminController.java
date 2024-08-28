@@ -43,7 +43,7 @@ public class EventAdminController {
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
 
         log.info("EventAdminController, getEventsByConditionalsForAdmin, users: {}, states: {}," +
-                "categories: {}, rangeStart: {}, rangeEnd: {}, from: {}, size: {}", users, states,
+                        "categories: {}, rangeStart: {}, rangeEnd: {}, from: {}, size: {}", users, states,
                 categories, rangeStart, rangeEnd, from, size);
         return eventService.getEventsByConditionalsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
