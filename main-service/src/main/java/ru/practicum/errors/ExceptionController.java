@@ -1,4 +1,4 @@
-package ru.practicum.Errors;
+package ru.practicum.errors;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleConflict(ConflictException e) {
+    public ErrorMessage handleConflict(final ConflictException e) {
         String reason = "Integrity constraint has been violated";
         String message = e.getMessage();
         return new ErrorMessage(HttpStatus.CONFLICT.getReasonPhrase(), reason, message, prepareResponseDate());
@@ -32,7 +32,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleConflict(ConstraintViolationException e) {
+    public ErrorMessage handleConflict(final ConstraintViolationException e) {
         String reason = "Integrity constraint has been violated";
         String message = "could not execute statement; constraint " + e.getConstraintName();
         return new ErrorMessage(HttpStatus.CONFLICT.getReasonPhrase(), reason, message, prepareResponseDate());
@@ -40,7 +40,7 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage handleNotFoundException(NotFoundException e) {
+    public ErrorMessage handleNotFoundException(final NotFoundException e) {
         String reason = "The required object was not found.";
         String message = e.getMessage();
         return new ErrorMessage(HttpStatus.NOT_FOUND.getReasonPhrase(), reason, message, prepareResponseDate());
@@ -48,10 +48,19 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleValidationException(ValidationException e) {
+    public ErrorMessage handleValidationException(final ValidationException e) {
         String reason = "Incorrectly made request.";
         String message = e.getMessage();
         return new ErrorMessage(HttpStatus.BAD_REQUEST.getReasonPhrase(), reason, message, prepareResponseDate());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessage handleThrowable(final Throwable e) {
+        String reason = "Something went wrong";
+        String message = e.getMessage();
+        return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                reason, message, prepareResponseDate());
     }
 
     private String prepareResponseDate() {

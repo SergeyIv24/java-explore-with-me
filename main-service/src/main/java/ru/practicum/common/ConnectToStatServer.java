@@ -3,7 +3,7 @@ package ru.practicum.common;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import ru.practicum.Errors.ClientException;
+import ru.practicum.errors.ClientException;
 import ru.practicum.dto.StatisticResponse;
 import ru.practicum.statistic.StatisticClient;
 

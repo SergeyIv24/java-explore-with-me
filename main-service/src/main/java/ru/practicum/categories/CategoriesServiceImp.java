@@ -1,12 +1,13 @@
 package ru.practicum.categories;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.NotFoundException;
+import ru.practicum.errors.NotFoundException;
 import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.model.Category;
 
@@ -22,7 +23,7 @@ public class CategoriesServiceImp implements CategoriesService {
     private final CategoriesRepository categoriesRepository;
 
     @Override
-    public CategoryDto addCategory(CategoryDto categoryDto) {
+    public CategoryDto addCategory(@Valid CategoryDto categoryDto) {
         return CategoriesMapper
                 .mapToCategoryDto(categoriesRepository.save(CategoriesMapper.mapToCategory(categoryDto)));
     }

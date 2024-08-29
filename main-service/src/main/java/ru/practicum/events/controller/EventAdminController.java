@@ -1,10 +1,12 @@
 package ru.practicum.events.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventRespFull;
 import ru.practicum.events.dto.EventUpdate;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/events")
+@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class EventAdminController {
@@ -39,8 +42,8 @@ public class EventAdminController {
             @RequestParam(value = "categories", required = false) List<Integer> categories,
             @RequestParam(value = "rangeStart", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
             @RequestParam(value = "rangeEnd", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-            @RequestParam(value = "from", required = false, defaultValue = "0") int from,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+            @Min(0) @RequestParam(value = "from", defaultValue = "0") int from,
+            @Min(0) @RequestParam(value = "size", defaultValue = "10") int size) {
 
         log.info("EventAdminController, getEventsByConditionalsForAdmin, users: {}, states: {}," +
                         "categories: {}, rangeStart: {}, rangeEnd: {}, from: {}, size: {}", users, states,

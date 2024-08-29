@@ -9,19 +9,10 @@ import ru.practicum.users.model.User;
 public class UserMapper {
 
     public static User mapToUser(UserDto userDto) {
-        return User.builder()
-                .id(userDto.getId())
-                .email(userDto.getEmail())
-                .name(userDto.getName())
-                .build();
+        return new User(userDto.getId(), userDto.getEmail(), userDto.getName());
     }
 
     public static UserDto mapToUserDto(User user) {
-        return UserDto
-                .builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .name(user.getName())
-                .build();
+        return new UserDto(user.getId(), user.getEmail(), user.getName());
     }
 }

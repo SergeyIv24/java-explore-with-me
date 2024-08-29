@@ -3,10 +3,13 @@ package ru.practicum.events.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "locations")
-@Data
+@Getter
+@Setter
 public class Location {
 
     @Id

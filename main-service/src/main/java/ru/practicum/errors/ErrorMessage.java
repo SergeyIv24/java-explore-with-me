@@ -1,4 +1,4 @@
-package ru.practicum.Errors;
+package ru.practicum.errors;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

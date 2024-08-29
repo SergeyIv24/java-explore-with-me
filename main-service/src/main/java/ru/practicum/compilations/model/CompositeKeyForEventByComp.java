@@ -1,18 +1,14 @@
 package ru.practicum.compilations.model;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Embeddable
-@Data
-@Builder
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class CompositeKeyForEventByComp implements Serializable {
 
     private Integer compilationId;

@@ -1,9 +1,11 @@
 package ru.practicum.users;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.users.dto.UserDto;
 
@@ -12,8 +14,9 @@ import java.util.Collection;
 import java.util.Set;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/admin/users")
+@Validated
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
 
@@ -29,8 +32,8 @@ public class UserController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> getUsers(@RequestParam(value = "ids", required = false) Set<Integer> ids,
-                                        @RequestParam(value = "from", required = false, defaultValue = "0") int from,
-                                        @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+                                        @Min(0) @RequestParam(value = "from", defaultValue = "0") int from,
+                                        @Min(0) @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("UserController, getUser, ids: {}, from: {}, size: {}", ids, from, size);
         return userService.getUsers(ids, from, size);
     }

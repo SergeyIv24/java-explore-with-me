@@ -14,29 +14,18 @@ import java.util.List;
 public class CompilationMapper {
 
     public static Compilation mapToCompilation(CompilationRequest compilationRequest) {
-        return Compilation.builder()
-                .id(compilationRequest.getId())
-                .title(compilationRequest.getTitle())
-                .pinned(compilationRequest.getPinned())
-                .build();
+        return new Compilation(compilationRequest.getId(),
+                compilationRequest.getTitle(), compilationRequest.getPinned());
     }
 
     public static Compilation mapToCompilation(CompilationUpdate compilationUpdate) {
-        return Compilation.builder()
-                .id(compilationUpdate.getId())
-                .title(compilationUpdate.getTitle())
-                .pinned(compilationUpdate.getPinned())
-                .build();
+        return new Compilation(compilationUpdate.getId(),
+                compilationUpdate.getTitle(), compilationUpdate.getPinned());
     }
 
     public static CompilationResponse mapToCompilationResponse(Compilation compilation, List<EventRespShort> events) {
-        return CompilationResponse
-                .builder()
-                .id(compilation.getId())
-                .title(compilation.getTitle())
-                .events(events)
-                .pinned(compilation.getPinned())
-                .build();
+        return new CompilationResponse(compilation.getId(),
+                compilation.getTitle(), compilation.getPinned(), events);
     }
 
     public static Compilation updateCompilation(Compilation updatingCompilation, Compilation newCompilation) {

@@ -2,9 +2,11 @@ package ru.practicum.events.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventUpdate;
 import ru.practicum.events.services.EventServicePrivate;
@@ -19,6 +21,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/users/{userId}/events")
+@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class EventPrivateController {
@@ -37,8 +40,8 @@ public class EventPrivateController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Collection<EventRespShort> getUsersEvents(@PathVariable(value = "userId") long userId,
-                                                     @RequestParam(value = "from", defaultValue = "0") int from,
-                                                     @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                     @Min(0) @RequestParam(value = "from", defaultValue = "0") int from,
+                                                     @Min(0) @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("EventPrivateController, getUsersEvents. UserId: {}, from: {}, size: {}", userId, from, size);
         return eventService.getUsersEvents(userId, from, size);
     }

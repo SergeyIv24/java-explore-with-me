@@ -3,7 +3,7 @@ package ru.practicum.compilations.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.NotFoundException;
+import ru.practicum.errors.NotFoundException;
 import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.dto.CompilationRequest;
 import ru.practicum.compilations.dto.CompilationResponse;
@@ -49,14 +49,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
         //Prepare List<EventsByCompilation> to add in events_by_compilations
         List<EventsByCompilation> eventsByCompilations = compilationRequest.getEvents()
                 .stream()
-                .map((id) -> EventsByCompilation
-                        .builder()
-                        .compositeKey(CompositeKeyForEventByComp
-                                .builder()
-                                .compilationId(compilationId)
-                                .eventId(id)
-                                .build())
-                        .build())
+                .map((id) -> new EventsByCompilation(new CompositeKeyForEventByComp(compilationId, id)))
                 .toList();
 
         //Save in events_by_compilations
@@ -86,15 +79,9 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
         List<EventsByCompilation> updatedEventsByComp = compilationUpdate
                 .getEvents()
                 .stream()
-                .map((EbCId) -> EventsByCompilation
-                        .builder()
-                        .compositeKey(CompositeKeyForEventByComp
-                                .builder()
-                                .compilationId(id)
-                                .eventId(EbCId)
-                                .build())
-                        .build())
+                .map((EbCId) -> new EventsByCompilation(new CompositeKeyForEventByComp(id, EbCId)))
                 .toList();
+
         eventByCompilationRepository.saveAll(updatedEventsByComp);
 
         List<EventRespShort> events = eventRepository.findByIdIn(compilationUpdate.getEvents())

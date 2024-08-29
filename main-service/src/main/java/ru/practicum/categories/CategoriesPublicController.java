@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.categories.dto.CategoryDto;
 
@@ -11,6 +12,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/categories")
+@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class CategoriesPublicController {
@@ -19,9 +21,9 @@ public class CategoriesPublicController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Collection<CategoryDto> getAllCategories(@RequestParam(required = false, value = "from", defaultValue = "0")
+    public Collection<CategoryDto> getAllCategories(@RequestParam(value = "from", defaultValue = "0")
                                                     @Min(0) int from,
-                                                    @RequestParam(required = false, value = "size", defaultValue = "10")
+                                                    @RequestParam(value = "size", defaultValue = "10")
                                                     @Min(0) int size) {
         log.info("CategoriesPublicController, getAllCategories. From: {}, size: {}", from, size);
         return categoriesService.getAllCategories(from, size);

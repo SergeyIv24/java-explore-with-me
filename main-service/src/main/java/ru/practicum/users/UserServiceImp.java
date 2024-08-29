@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.NotFoundException;
-import ru.practicum.Errors.ValidationException;
+import ru.practicum.errors.NotFoundException;
+import ru.practicum.errors.ValidationException;
 import ru.practicum.users.dto.UserDto;
 import ru.practicum.users.model.User;
 

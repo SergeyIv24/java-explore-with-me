@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.NotFoundException;
+import ru.practicum.errors.NotFoundException;
 import ru.practicum.compilations.CompilationMapper;
 import ru.practicum.compilations.dto.CompilationResponse;
 import ru.practicum.compilations.dto.EventByCompId;
