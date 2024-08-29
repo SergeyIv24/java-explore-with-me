@@ -124,6 +124,6 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
             log.warn("Compilation with: {} was not found", id);
             throw new NotFoundException("Compilation with = " + id + " was not found");
         }
-        return compilationRepository.findById(id).get();
+        return compilationRepository.findById(id).orElseThrow();
     }
 }

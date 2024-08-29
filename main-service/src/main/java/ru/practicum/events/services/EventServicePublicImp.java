@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.Errors.ValidationException;
-
+import ru.practicum.common.ConnectToStatServer;
 import ru.practicum.common.GeneralConstants;
-import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.EventStates;
@@ -72,8 +69,9 @@ public class EventServicePublicImp implements EventsServicePublic {
                 .stream()
                 .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
-                prepareUris(eventsIds), true);
+        List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime,
+                GeneralConstants.defaultEndTime, ConnectToStatServer.prepareUris(eventsIds),
+                true, statisticClient);
 
         for (int i = 0; i < events.size(); i++) {
             if ((!views.isEmpty()) && (views.get(i) != 0)) {
@@ -102,45 +100,14 @@ public class EventServicePublicImp implements EventsServicePublic {
 
         EventRespFull eventFull = EventMapper.mapToEventRespFull(event);
         eventFull.setConfirmedRequests(confirmedRequests);
-        List<Long> views = getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime, path,
-                true);
+        List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime,
+                GeneralConstants.defaultEndTime, path,
+                true, statisticClient);
         if (views.isEmpty()) {
             eventFull.setViews(0L);
         }
         eventFull.setViews(views.get(0));
         return eventFull;
-    }
-
-    private String prepareUris(List<Long> ids) {
-        return ids
-                .stream()
-                .map((id) -> "event/" + id).collect(Collectors.joining());
-    }
-
-    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
-        ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
-
-        if (response.getStatusCode().is4xxClientError()) {
-            log.warn("Bad request. Status code is {}", response.getStatusCode());
-            throw new ClientException("Bad request. Status code is: " + response.getStatusCode());
-        }
-
-        if (response.getStatusCode().is5xxServerError()) {
-            log.warn("Internal server error statusCode is {}", response.getStatusCode());
-            throw new ClientException("Internal server error statusCode is " + response.getStatusCode());
-        }
-
-        if (response.getBody() == null) {
-            log.warn("Returned empty body");
-            throw new ClientException("Returned empty body");
-        }
-
-        List<StatisticResponse> statisticResponses = response.getBody();
-
-        return statisticResponses
-                .stream()
-                .map(StatisticResponse::getHits)
-                .collect(Collectors.toList());
     }
 
     private void validateDates(LocalDateTime start, LocalDateTime end) {

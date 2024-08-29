@@ -27,10 +27,6 @@ public class EventMapper {
                 .participantLimit(eventRequest.getParticipantLimit())
                 .requestModeration(eventRequest.getRequestModeration())
                 .title(eventRequest.getTitle())
-/*                .initiator()
-                .category()
-                .createdOn()
-                .state()*/
                 .build();
     }
 

@@ -48,5 +48,4 @@ public class ConnectToStatServer {
                 .stream()
                 .map((id) -> "event/" + id).collect(Collectors.joining());
     }
-
 }

@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 
 @JsonComponent
 public class CustomDataDeserializer extends JsonDeserializer<LocalDateTime> {
-
     @Override
     public LocalDateTime deserialize(JsonParser jsonParser,
                                      DeserializationContext deserializationContext)

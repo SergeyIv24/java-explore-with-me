@@ -8,14 +8,6 @@ import ru.practicum.requests.model.Requests;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestMapper {
 
-    public static Requests mapToRequests(RequestDto requestDto) {
-        return Requests.builder()
-                .id(requestDto.getId())
-                .created(requestDto.getCreated())
-                .status(requestDto.getStatus())
-                .build();
-    }
-
     public static RequestDto mapToRequestDto(Requests requests) {
         return RequestDto
                 .builder()

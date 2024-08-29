@@ -4,17 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.ClientException;
 import ru.practicum.Errors.ConflictException;
 import ru.practicum.Errors.NotFoundException;
 import ru.practicum.Errors.ValidationException;
-
 import ru.practicum.categories.CategoriesRepository;
 import ru.practicum.categories.model.Category;
+import ru.practicum.common.ConnectToStatServer;
 import ru.practicum.common.GeneralConstants;
-import ru.practicum.dto.StatisticResponse;
 import ru.practicum.events.EventMapper;
 import ru.practicum.events.EventRepository;
 import ru.practicum.events.EventStates;
@@ -48,7 +45,6 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
 
     @Override
     public EventRespFull adminsUpdate(EventUpdate eventUpdate, long eventId) {
-
         Event updatingEvent = validateAndGetEvent(eventId);
 
         checkAbilityToUpdate(updatingEvent);
@@ -81,7 +77,6 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                                                                      int from,
                                                                      int size) {
         validateDates(rangeStart, rangeEnd);
-
         int startPage = from > 0 ? (from / size) : 0;
         Pageable pageable = PageRequest.of(startPage, size);
 
@@ -117,9 +112,9 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                 .stream()
                 .collect(Collectors.toMap(EventIdByRequestsCount::getEvent, EventIdByRequestsCount::getCount));
 
-        List<Long> views = getViews(GeneralConstants.defaultStartTime,
+        List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime,
                 GeneralConstants.defaultEndTime,
-                prepareUris(eventsIds), true);
+                ConnectToStatServer.prepareUris(eventsIds), true, statisticClient);
 
         for (int i = 0; i < eventRespFulls.size(); i++) {
 
@@ -132,7 +127,6 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
                     .setConfirmedRequests(confirmedRequestsByEvents
                             .getOrDefault(eventRespFulls.get(i).getId(), 0L));
         }
-        //log.info("getEventsByConditionalsForAdmin, response: comfired {}", eventRespFulls.get(0).getConfirmedRequests());
         return eventRespFulls;
     }
 
@@ -140,15 +134,8 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
         locationRepository.save(location);
     }
 
-    private String prepareUris(List<Long> ids) {
-        return ids
-                .stream()
-                .map((id) -> "event/" + id).collect(Collectors.joining());
-    }
-
     private Event validateAndGetEvent(long eventId) {
         Optional<Event> event = eventRepository.findById(eventId);
-
         if (event.isEmpty()) {
             log.warn("Attempt to get unknown event");
             throw new NotFoundException("Event with id = " + eventId + "was not found");
@@ -158,7 +145,6 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
 
     private Category validateAndGetCategory(int categoryId) {
         Optional<Category> category = categoriesRepository.findById(categoryId);
-
         if (category.isEmpty()) {
             log.warn("Attempt to delete unknown category with categoryId: {}", categoryId);
             throw new NotFoundException("Category with id = " + categoryId + " was not found");
@@ -167,39 +153,11 @@ public class EventsServiceAdminImp implements EventsServiceAdmin {
     }
 
     private void checkAbilityToUpdate(Event event) {
-
         if (event.getState().equals(String.valueOf(EventStates.PUBLISHED))
                 || event.getState().equals(String.valueOf(EventStates.CANCELED))) {
             log.warn("Update is prohibited. event stat: {}", event.getState());
             throw new ConflictException("States must be" + EventStates.PENDING + " or " + EventStates.CANCELED);
         }
-    }
-
-    private List<Long> getViews(LocalDateTime start, LocalDateTime end, String uris, boolean unique) {
-        ResponseEntity<List<StatisticResponse>> response = statisticClient.getStats(start, end, uris, unique);
-
-
-        if (response.getStatusCode().is4xxClientError()) {
-            log.warn("Bad request. Status code is {}", response.getStatusCode());
-            throw new ClientException("Bad request. Status code is: " + response.getStatusCode());
-        }
-
-        if (response.getStatusCode().is5xxServerError()) {
-            log.warn("Internal server error statusCode is {}", response.getStatusCode());
-            throw new ClientException("Internal server error statusCode is " + response.getStatusCode());
-        }
-
-        if (response.getBody() == null) {
-            log.warn("Returned empty body");
-            throw new ClientException("Returned empty body");
-        }
-
-        List<StatisticResponse> statisticResponses = response.getBody();
-
-        return statisticResponses
-                .stream()
-                .map(StatisticResponse::getHits)
-                .collect(Collectors.toList());
     }
 
     private void validateDates(LocalDateTime start, LocalDateTime end) {

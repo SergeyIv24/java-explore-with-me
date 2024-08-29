@@ -70,7 +70,6 @@ public class UserServiceImp implements UserService {
         }
     }
 
-
     private void isUserExisted(long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
