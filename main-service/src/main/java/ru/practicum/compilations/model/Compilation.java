@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Compilation {
 
     @Id

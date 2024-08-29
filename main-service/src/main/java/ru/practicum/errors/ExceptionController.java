@@ -1,6 +1,6 @@
 package ru.practicum.errors;
 
-import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,7 +10,7 @@ import ru.practicum.common.GeneralConstants;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice(basePackages = "ru.practicum")
+@RestControllerAdvice
 public class ExceptionController {
 
     @ExceptionHandler
@@ -32,9 +32,9 @@ public class ExceptionController {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleConflict(final ConstraintViolationException e) {
+    public ErrorMessage handleConflict(final DataIntegrityViolationException e) {
         String reason = "Integrity constraint has been violated";
-        String message = "could not execute statement; constraint " + e.getConstraintName();
+        String message = "could not execute statement; constraint " + e.getMostSpecificCause();
         return new ErrorMessage(HttpStatus.CONFLICT.getReasonPhrase(), reason, message, prepareResponseDate());
     }
 
