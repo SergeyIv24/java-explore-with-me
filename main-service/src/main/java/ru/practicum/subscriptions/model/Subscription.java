@@ -22,7 +22,7 @@ public class Subscription {
     private Long subscriptionId;
 
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id")
     @NotNull(message = "user must be null")
     private User user;
 

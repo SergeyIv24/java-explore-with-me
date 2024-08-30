@@ -3,8 +3,8 @@ package ru.practicum.subscriptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.Errors.ConflictException;
-import ru.practicum.Errors.NotFoundException;
+import ru.practicum.errors.ConflictException;
+import ru.practicum.errors.NotFoundException;
 import ru.practicum.subscriptions.dto.SubscriptionDto;
 import ru.practicum.subscriptions.model.Subscription;
 import ru.practicum.users.UserMapper;
@@ -48,8 +48,10 @@ public class SubscriptionService implements SubscriptionsService {
     public List<UserDto> getUsersIFollow(long userId) {
         validateAndGetUser(userId);
         return subscriptionRepository
-                .findByFollower(userId)
+                .findByFollowerId(userId)
                 .stream()
+                .map((userProjection) ->
+                        new User(userProjection.getId(), userProjection.getEmail(), userProjection.getName()))
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
@@ -58,8 +60,10 @@ public class SubscriptionService implements SubscriptionsService {
     public List<UserDto> getMyFollowers(long userId) {
         validateAndGetUser(userId);
         return subscriptionRepository
-                .findByUser(userId)
+                .findByUserId(userId)
                 .stream()
+                .map((userProjection) ->
+                        new User(userProjection.getId(), userProjection.getEmail(), userProjection.getName()))
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
@@ -70,7 +74,7 @@ public class SubscriptionService implements SubscriptionsService {
             throw new ConflictException("User with userId: " + userId + " tried to follow to himself(followerId: "
                     + followerId + ")");
         }
-        Optional<Subscription> subscription = subscriptionRepository.findByUserAndFollower(userId, followerId);
+        Optional<Subscription> subscription = subscriptionRepository.findByUserIdAndFollowerId(userId, followerId);
         if (subscription.isPresent()) {
             log.warn("User with id: {} have already subscribed to user with id: {}", followerId, userId);
             throw new ConflictException("User with id: " + followerId +
@@ -88,10 +92,11 @@ public class SubscriptionService implements SubscriptionsService {
     }
 
     private Subscription validateAndGetSubscription(long userId, long followerId) {
-        Optional<Subscription> subscription = subscriptionRepository.findByUserAndFollower(userId, followerId);
+        Optional<Subscription> subscription = subscriptionRepository.findByUserIdAndFollowerId(userId, followerId);
         if (subscription.isEmpty()) {
-            log.warn("");
-            throw new NotFoundException("");
+            log.warn("User with id: {} does not subscribe to user with id: {}", followerId, userId);
+            throw new NotFoundException("User with id: " + followerId +
+                    " does not subscribe to user with id: " + userId);
         }
         return subscription.get();
     }

@@ -63,14 +63,14 @@ public class ExceptionController {
         return new ErrorMessage(HttpStatus.BAD_REQUEST.getReasonPhrase(), reason, message, prepareResponseDate());
     }
 
-    @ExceptionHandler
+/*    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleThrowable(final Throwable e) {
         String reason = "Something went wrong";
         String message = e.getMessage();
         return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 reason, message, prepareResponseDate());
-    }
+    }*/
 
     private String prepareResponseDate() {
         return LocalDateTime.now().format(GeneralConstants.DATE_FORMATTER);
