@@ -9,21 +9,13 @@ import ru.practicum.subscriptions.model.Subscription;
 public class SubscriptionMapper {
 
     public static SubscriptionDto mapToSubscriptionDto(Subscription subscription) {
-        return SubscriptionDto
-                .builder()
-                .subscriptionId(subscription.getSubscriptionId())
-                .user(subscription.getUser())
-                .follower(subscription.getFollower())
-                .build();
+        return new SubscriptionDto(subscription.getSubscriptionId(),
+                subscription.getUser(), subscription.getFollower());
     }
 
     public static Subscription mapToSubscription(SubscriptionDto subscriptionDto) {
-        return Subscription
-                .builder()
-                .subscriptionId(subscriptionDto.getSubscriptionId())
-                .user(subscriptionDto.getUser())
-                .follower(subscriptionDto.getFollower())
-                .build();
+        return new Subscription(subscriptionDto.getSubscriptionId(),
+                subscriptionDto.getUser(), subscriptionDto.getFollower());
     }
 
 }

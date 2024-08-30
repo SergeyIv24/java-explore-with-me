@@ -1,12 +1,13 @@
 package ru.practicum.subscriptions.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.users.model.User;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class SubscriptionDto {
 
     private Long subscriptionId;
