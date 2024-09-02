@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "057be87a-ce39-4ee1-acf7-ef8e07ee1328",
-		"name": "Subscription",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "61e256dc-8e28-4bd3-bcf7-a6d9b038f308",
+		"name": "Subscription Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "34062628"
 	},
 	"item": [
@@ -303,7 +303,7 @@
 							"});\r",
 							"\r",
 							"pm.test(\"Данные пользователей должны соответствовать до запроса и после запроса\", function (){\r",
-							"    pm.expect(target.user.id).equal(pm.collectionVariables.get(\"uid\"))\r",
+							"    pm.expect(target.user.id.toString()).equal(pm.collectionVariables.get(\"uid\").toString())\r",
 							"    pm.expect(target.follower.id).equal(pm.collectionVariables.get(\"uid1\"))\r",
 							"});"
 						],
