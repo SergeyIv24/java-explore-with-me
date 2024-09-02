@@ -120,7 +120,6 @@ public class SubscriptionService implements SubscriptionsService {
         return events;
     }
 
-
     private void validateSubscription(long userId, long followerId) {
         if (userId == followerId) {
             log.warn("User with userId: {} tried to follow to himself(followerId: {})", userId, followerId);

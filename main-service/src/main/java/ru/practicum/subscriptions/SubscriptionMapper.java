@@ -12,10 +12,4 @@ public class SubscriptionMapper {
         return new SubscriptionDto(subscription.getSubscriptionId(),
                 subscription.getUser(), subscription.getFollower());
     }
-
-    public static Subscription mapToSubscription(SubscriptionDto subscriptionDto) {
-        return new Subscription(subscriptionDto.getSubscriptionId(),
-                subscriptionDto.getUser(), subscriptionDto.getFollower());
-    }
-
 }

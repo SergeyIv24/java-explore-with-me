@@ -1,7 +1,6 @@
 package ru.practicum.subscriptions;
 
 import ru.practicum.events.dto.EventRespShort;
-import ru.practicum.events.model.Event;
 import ru.practicum.subscriptions.dto.SubscriptionDto;
 import ru.practicum.users.dto.UserDto;
 
