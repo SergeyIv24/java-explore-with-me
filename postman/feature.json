@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "61e256dc-8e28-4bd3-bcf7-a6d9b038f308",
-		"name": "Subscription Copy",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"name": "Subscription",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "34062628"
 	},
 	"item": [
