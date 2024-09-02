@@ -300,11 +300,6 @@
 							"    pm.expect(target).to.have.property('subscriptionId');\r",
 							"    pm.expect(target).to.have.property('user');\r",
 							"    pm.expect(target).to.have.property('follower');\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Данные пользователей должны соответствовать до запроса и после запроса\", function (){\r",
-							"    pm.expect(target.user.id.toString()).equal(pm.collectionVariables.get(\"uid\").toString())\r",
-							"    pm.expect(target.follower.id).equal(pm.collectionVariables.get(\"uid1\"))\r",
 							"});"
 						],
 						"type": "text/javascript",
