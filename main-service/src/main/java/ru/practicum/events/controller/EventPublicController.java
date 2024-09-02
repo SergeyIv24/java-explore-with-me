@@ -37,7 +37,7 @@ public class EventPublicController {
     public Collection<EventRespShort> searchEvents(@RequestParam(value = "text", required = false) String text,
                                                    @RequestParam(value = "categories", required = false)
                                                    List<Integer> categories,
-                                                   @RequestParam(value = "paid", required = false) Boolean paid,
+                                                   @RequestParam(value = "paid", required = false) boolean paid,
                                                    @RequestParam(value = "rangeStart", required = false)
                                                    String rangeStart,
                                                    @RequestParam(value = "rangeEnd", required = false)

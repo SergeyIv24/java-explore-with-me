@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.subscriptions.model.Subscription;
 import ru.practicum.subscriptions.model.UserProjection;
 
-
 import java.util.List;
 import java.util.Optional;
 
