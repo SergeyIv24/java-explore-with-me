@@ -1,6 +1,6 @@
 package ru.practicum.common;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import ru.practicum.statistic.StatisticClient;
 
 @Component
+@RequiredArgsConstructor
 public class Config {
 
-    @Autowired
-    private RestTemplateBuilder restTemplateBuilder;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     @Value("${stats-server.url}")
     private String serverUri;

@@ -1,23 +1,15 @@
 package ru.practicum.compilations.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.List;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
-@AllArgsConstructor
-public class CompilationRequest {
-
-    private Integer id;
+public class CompilationRequest extends CompilationUpdate {
 
     @NotBlank(message = "Empty title")
     @Length(max = 50)
     private String title;
-
-    private Boolean pinned;
-
-    private List<Long> events;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.common.ConnectToStatServer;
 import ru.practicum.common.GeneralConstants;
+import ru.practicum.common.Utilities;
 import ru.practicum.errors.ConflictException;
 import ru.practicum.errors.NotFoundException;
 import ru.practicum.events.EventMapper;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SubscriptionService implements SubscriptionsService {
+public class SubscriptionServiceImp implements SubscriptionsService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
@@ -106,18 +107,10 @@ public class SubscriptionService implements SubscriptionsService {
         List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
                 ConnectToStatServer.prepareUris(eventsIds), true, statisticClient);
 
-        for (int i = 0; i < events.size(); i++) {
+        List<? extends EventRespShort> eventsForResp =
+                Utilities.addViewsAndConfirmedRequests(events, confirmedRequestsByEvents, views);
 
-            if ((!views.isEmpty()) && (views.get(i) != 0)) {
-                events.get(i).setViews(views.get(i));
-            } else {
-                events.get(i).setViews(0L);
-            }
-            events.get(i)
-                    .setConfirmedRequests(confirmedRequestsByEvents
-                            .getOrDefault(events.get(i).getId(), 0L));
-        }
-        return events;
+        return Utilities.checkTypes(eventsForResp, EventRespShort.class);
     }
 
     private void validateSubscription(long userId, long followerId) {

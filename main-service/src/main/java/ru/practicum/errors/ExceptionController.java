@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.common.GeneralConstants;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @RestControllerAdvice
 public class ExceptionController {
@@ -18,7 +19,13 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         String reason = e.getBody().getDetail();
-        String message = "Field: " + e.getBindingResult().getFieldError().getField() +
+        String field;
+        if (!Objects.requireNonNull(e.getBindingResult().getFieldError()).getField().isEmpty()) {
+            field = Objects.requireNonNull(e.getBindingResult().getFieldError()).getField();
+        } else {
+            field = e.getMessage();
+        }
+        String message = "Field: " + field +
                 " error: " + e.getBindingResult().getFieldError().getDefaultMessage();
         return new ErrorMessage(HttpStatus.BAD_REQUEST.getReasonPhrase(), reason, message, prepareResponseDate());
     }
@@ -63,14 +70,14 @@ public class ExceptionController {
         return new ErrorMessage(HttpStatus.BAD_REQUEST.getReasonPhrase(), reason, message, prepareResponseDate());
     }
 
-/*    @ExceptionHandler
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleThrowable(final Throwable e) {
         String reason = "Something went wrong";
         String message = e.getMessage();
         return new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 reason, message, prepareResponseDate());
-    }*/
+    }
 
     private String prepareResponseDate() {
         return LocalDateTime.now().format(GeneralConstants.DATE_FORMATTER);

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.common.Utilities;
 import ru.practicum.errors.NotFoundException;
 import ru.practicum.errors.ValidationException;
 import ru.practicum.common.ConnectToStatServer;
@@ -73,18 +74,10 @@ public class EventServicePublicImp implements EventsServicePublic {
                 GeneralConstants.defaultEndTime, ConnectToStatServer.prepareUris(eventsIds),
                 true, statisticClient);
 
-        for (int i = 0; i < events.size(); i++) {
-            if ((!views.isEmpty()) && (views.get(i) != 0)) {
-                events.get(i).setViews(views.get(i));
-            } else {
-                events.get(i).setViews(0L);
-            }
-            events.get(i)
-                    .setConfirmedRequests(confirmedRequestsByEvents
-                            .getOrDefault(events.get(i).getId(), 0L));
-        }
-        return events;
+        List<? extends EventRespShort> eventsForResp =
+                Utilities.addViewsAndConfirmedRequests(events, confirmedRequestsByEvents, views);
 
+        return Utilities.checkTypes(eventsForResp, EventRespShort.class);
     }
 
     @Override
