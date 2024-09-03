@@ -97,7 +97,11 @@ public class EventServicePrivateImp implements EventServicePrivate {
         List<Long> views = ConnectToStatServer.getViews(GeneralConstants.defaultStartTime, GeneralConstants.defaultEndTime,
                 ConnectToStatServer.prepareUris(eventIds), true, statisticClient);
 
-        return (Collection<EventRespShort>) Utilities.addViewsAndConfirmedRequests(events, confirmedRequestsByEvents, views);
+        List<? extends EventRespShort> eventsForResp =
+                Utilities.addViewsAndConfirmedRequests(events, confirmedRequestsByEvents, views);
+
+        return Utilities.checkTypes(eventsForResp,
+                EventRespShort.class);
     }
 
     @Override
