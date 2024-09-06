@@ -45,21 +45,8 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
         if (compilationRequest.getEvents() == null) {
             return CompilationMapper.mapToCompilationResponse(savedCompilation, List.of());
         }
-
-        //Prepare List<EventsByCompilation> to add in events_by_compilations
-        List<EventsByCompilation> eventsByCompilations = compilationRequest.getEvents()
-                .stream()
-                .map((id) -> new EventsByCompilation(new CompositeKeyForEventByComp(compilationId, id)))
-                .toList();
-
-        //Save in events_by_compilations
-        eventByCompilationRepository.saveAll(eventsByCompilations);
-
-        List<EventRespShort> events = eventRepository.findByIdIn(compilationRequest.getEvents())
-                .stream()
-                .map(EventMapper::mapToEventRespShort)
-                .toList();
-        return CompilationMapper.mapToCompilationResponse(savedCompilation, events);
+        return CompilationMapper
+                .mapToCompilationResponse(savedCompilation, addEventByCompilations(compilationRequest, compilationId));
     }
 
     @Override
@@ -76,21 +63,8 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
 
         deleteEventsByCompilations(id);
 
-        List<EventsByCompilation> updatedEventsByComp = compilationUpdate
-                .getEvents()
-                .stream()
-                .map((EbCId) -> new EventsByCompilation(new CompositeKeyForEventByComp(id, EbCId)))
-                .toList();
-
-        eventByCompilationRepository.saveAll(updatedEventsByComp);
-
-        List<EventRespShort> events = eventRepository.findByIdIn(compilationUpdate.getEvents())
-                .stream()
-                .map(EventMapper::mapToEventRespShort)
-                .toList();
-
-        return CompilationMapper.mapToCompilationResponse(updatedCompilation, events);
-
+        return CompilationMapper
+                .mapToCompilationResponse(updatedCompilation, addEventByCompilations(compilationUpdate, id));
     }
 
     @Override
@@ -98,6 +72,22 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
         validateAndGetCompilation(id);
         compilationRepository.deleteById(id);
         deleteEventsByCompilations(id);
+    }
+
+    private <T extends CompilationUpdate> List<EventRespShort> addEventByCompilations(T compilation, int id) {
+
+        List<EventsByCompilation> eventsByComp = compilation
+                .getEvents()
+                .stream()
+                .map((EbCId) -> new EventsByCompilation(new CompositeKeyForEventByComp(id, EbCId)))
+                .toList();
+
+        eventByCompilationRepository.saveAll(eventsByComp);
+
+        return eventRepository.findByIdIn(compilation.getEvents())
+                .stream()
+                .map(EventMapper::mapToEventRespShort)
+                .toList();
     }
 
     private void deleteEventsByCompilations(int id) {
